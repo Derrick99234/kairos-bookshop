@@ -1,0 +1,87 @@
+body {
+  background-color: #FAF9F6;
+  font-family: 'Inter', sans-serif;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.filled-icon {
+  font-variation-settings: 'FILL' 1;
+}
+
+.category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -10px rgba(49, 61, 187, 0.2);
+}
+
+.book-card-shadow {
+  box-shadow: 0 1px 2px rgba(49, 31, 164, 0.08);
+  border: 1px solid rgba(49, 31, 164, 0.05);
+}
+
+.book-card-shadow:hover {
+  box-shadow: 0 4px 12px rgba(49, 31, 164, 0.12);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #311fa4;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.pagination-active {
+  background-color: #311fa4;
+  color: #ffffff;
+}
+
+.cream-gradient {
+  background: linear-gradient(180deg, #fbf8fe 0%, #f6f2f8 100%);
+}
+
+.hero-mesh {
+  background-color: #311fa4;
+  background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+                    radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+                    radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #493dbb;
+  border-radius: 4px;
+}
+
+.cart-item-transition {
+  transition: all 0.3s ease;
+}
+
+.book-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+.transition-soft {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.order-row:hover {
+  background-color: #f6f2f8;
+  transition: background-color 0.2s ease;
+}
+
+.nav-sidebar-item {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}

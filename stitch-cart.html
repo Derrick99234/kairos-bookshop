@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Shopping Cart | Kairos Bookshop</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#f0edf2",
+                    "on-background": "#1b1b1f",
+                    "tertiary-container": "#52524f",
+                    "on-secondary-fixed": "#410003",
+                    "tertiary-fixed": "#e4e2de",
+                    "surface-container-low": "#f6f2f8",
+                    "tertiary-fixed-dim": "#c8c6c3",
+                    "inverse-primary": "#c5c0ff",
+                    "surface-container-high": "#eae7ed",
+                    "on-secondary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "surface-container-highest": "#e4e1e7",
+                    "surface": "#fbf8fe",
+                    "on-tertiary-container": "#c6c5c2",
+                    "surface-variant": "#e4e1e7",
+                    "on-tertiary-fixed-variant": "#474744",
+                    "primary-fixed-dim": "#c5c0ff",
+                    "secondary": "#b7141e",
+                    "surface-dim": "#dcd9de",
+                    "on-surface": "#1b1b1f",
+                    "secondary-fixed-dim": "#ffb3ad",
+                    "inverse-on-surface": "#f3f0f5",
+                    "tertiary": "#3b3b39",
+                    "secondary-container": "#db3233",
+                    "on-surface-variant": "#474553",
+                    "inverse-surface": "#303034",
+                    "primary-fixed": "#e3dfff",
+                    "outline": "#787585",
+                    "on-secondary-fixed-variant": "#930011",
+                    "primary": "#311fa4",
+                    "on-primary-container": "#c3beff",
+                    "error-container": "#ffdad6",
+                    "on-secondary-container": "#fffbff",
+                    "on-primary": "#ffffff",
+                    "outline-variant": "#c8c4d6",
+                    "on-primary-fixed": "#130067",
+                    "surface-container-lowest": "#ffffff",
+                    "background": "#fbf8fe",
+                    "on-tertiary-fixed": "#1b1c1a",
+                    "surface-bright": "#fbf8fe",
+                    "secondary-fixed": "#ffdad6",
+                    "primary-container": "#493dbb",
+                    "surface-tint": "#564bc9",
+                    "on-tertiary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-error-container": "#93000a",
+                    "on-primary-fixed-variant": "#3e30b0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "unit-xs": "4px",
+                    "unit-xl": "64px",
+                    "margin-mobile": "20px",
+                    "margin-desktop": "64px",
+                    "container-max": "1280px",
+                    "unit-sm": "8px",
+                    "unit-md": "16px",
+                    "unit-lg": "32px"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-xl": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-lg-mobile": ["Inter"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fbf8fe;
+            color: #1b1b1f;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #493dbb;
+            border-radius: 4px;
+        }
+        .cart-item-transition {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-on-background min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop py-unit-sm bg-surface/95 backdrop-blur-sm border-b border-outline-variant">
+<div class="flex items-center gap-unit-md">
+<span class="font-headline-md text-headline-md font-bold text-primary">Kairos Bookshop</span>
+</div>
+<nav class="hidden md:flex items-center space-x-unit-lg">
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Shop</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Categories</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">About</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Contact</a>
+</nav>
+<div class="flex items-center gap-unit-md">
+<button class="p-unit-xs relative hover:bg-surface-container transition-colors rounded-full">
+<span class="material-symbols-outlined text-primary" data-icon="shopping_cart">shopping_cart</span>
+<span class="absolute -top-1 -right-1 bg-secondary text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">3</span>
+</button>
+<button class="md:hidden p-unit-xs">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-unit-xl mt-unit-lg px-margin-desktop max-w-container-max mx-auto w-full">
+<h1 class="font-headline-xl text-headline-xl mb-unit-lg mt-unit-md">Shopping Cart</h1>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter mb-unit-xl">
+<!-- Cart Table Section -->
+<div class="lg:col-span-8 space-y-unit-md">
+<div class="hidden md:grid grid-cols-12 gap-unit-md pb-unit-sm border-b border-outline-variant font-label-md text-label-md text-on-surface-variant uppercase">
+<div class="col-span-6">Product Details</div>
+<div class="col-span-2 text-center">Price</div>
+<div class="col-span-2 text-center">Quantity</div>
+<div class="col-span-2 text-right">Total</div>
+</div>
+<!-- Cart Item 1 -->
+<div class="cart-item-transition grid grid-cols-1 md:grid-cols-12 gap-unit-md items-center py-unit-md border-b border-outline-variant hover:bg-surface-container-lowest rounded-lg group">
+<div class="col-span-6 flex gap-unit-md">
+<div class="w-24 h-32 flex-shrink-0 bg-surface-container overflow-hidden rounded-lg border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="High-quality vertical book cover titled 'Dynamics of the Spirit' by Dr. Isaiah Wealth. The design is elegant and theological, featuring deep navy blue tones and golden serif typography. A subtle spiritual aura or dove motif is visible in the background, conveying power and divinity in a minimalist, corporate modern style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5KuLhmPod751A5WuLNKbRwkQ8IvOcEayO06z2sg4vU_tcppZbxh5sI31XJEfmFpjXNkgqv0FLejHRZn7AqHTdT7o8CuRL3Awf4vsQIF0wrGwRfyA44Bsl3T1y3YNVjg2imt1OuXEp2MQuNJeprcfsBx2vygAlOEZNK9oVCgLrTu7e1SVnY8AK3gsrAycpkDIiAPWOfAIOCEEVm2LzbibG1SzD68s2gZ3C61bb_GgKzExg8yCfp4v2A73cBZhzs5WVFRSaJT0UUJwG"/>
+</div>
+<div class="flex flex-col justify-center">
+<h3 class="font-headline-md text-[18px] text-on-surface mb-unit-xs">Dynamics of the Spirit</h3>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase">Dr. Isaiah Wealth</p>
+<button class="mt-unit-sm text-secondary font-label-sm text-label-sm flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-[16px]" data-icon="delete">delete</span> Remove
+                            </button>
+</div>
+</div>
+<div class="col-span-2 text-center font-body-md">₦5,500</div>
+<div class="col-span-2 flex justify-center">
+<div class="flex items-center border border-outline-variant rounded-lg">
+<button class="px-3 py-1 hover:bg-surface-container-high transition-colors">-</button>
+<span class="px-3 py-1 font-body-md border-x border-outline-variant">1</span>
+<button class="px-3 py-1 hover:bg-surface-container-high transition-colors">+</button>
+</div>
+</div>
+<div class="col-span-2 text-right font-body-md font-bold">₦5,500</div>
+</div>
+<!-- Cart Item 2 -->
+<div class="cart-item-transition grid grid-cols-1 md:grid-cols-12 gap-unit-md items-center py-unit-md border-b border-outline-variant hover:bg-surface-container-lowest rounded-lg group">
+<div class="col-span-6 flex gap-unit-md">
+<div class="w-24 h-32 flex-shrink-0 bg-surface-container overflow-hidden rounded-lg border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="Premium book cover titled 'The Power of Prayer' by Dr. Isaiah Wealth. The visual features a minimalist aesthetic with light cream and primary blue accents. A clean, modern typeface is centered over a soft-focus image of a serene morning landscape. The style is high-fidelity and professional, aimed at a spiritual audience." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBW_T9ES_SlBcJweas6YYohSfd60NmrIl_mcn_S6_MV_w6HkXHSASS7zSV_UMPkcvbuBhbTDguW3Hg4B1wouhHbTWKk6ZJAactOhF3zjd5Bjq8tqew_wHFK55Qxd_B409jvLncWaWuyS2QAW6UcGD89eVqwunFQaZD-uk6bgNy_c5qE4ipt8k48W1AW-rQjNMr-EVXF6WcpWAAuv6LW9e5o5BnFH1doKZnJXgZc8PrlsV5qUF2OkWLzxT49fQn8P3APtA7hoecPEpw_"/>
+</div>
+<div class="flex flex-col justify-center">
+<h3 class="font-headline-md text-[18px] text-on-surface mb-unit-xs">The Power of Prayer</h3>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase">Dr. Isaiah Wealth</p>
+<button class="mt-unit-sm text-secondary font-label-sm text-label-sm flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-[16px]" data-icon="delete">delete</span> Remove
+                            </button>
+</div>
+</div>
+<div class="col-span-2 text-center font-body-md">₦4,200</div>
+<div class="col-span-2 flex justify-center">
+<div class="flex items-center border border-outline-variant rounded-lg">
+<button class="px-3 py-1 hover:bg-surface-container-high transition-colors">-</button>
+<span class="px-3 py-1 font-body-md border-x border-outline-variant">1</span>
+<button class="px-3 py-1 hover:bg-surface-container-high transition-colors">+</button>
+</div>
+</div>
+<div class="col-span-2 text-right font-body-md font-bold">₦4,200</div>
+</div>
+<!-- Cart Item 3 -->
+<div class="cart-item-transition grid grid-cols-1 md:grid-cols-12 gap-unit-md items-center py-unit-md border-b border-outline-variant hover:bg-surface-container-lowest rounded-lg group">
+<div class="col-span-6 flex gap-unit-md">
+<div class="w-24 h-32 flex-shrink-0 bg-surface-container overflow-hidden rounded-lg border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="Striking book cover titled 'Metanoia: The Shift' by Dr. Isaiah Wealth. Bold geometric typography dominates the composition, utilizing a high-contrast palette of deep purple and bright white. The background features a subtle, sophisticated grain texture. The overall aesthetic is avant-garde yet corporate, suggesting a profound internal transformation." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcUEQSVTwmN2NszjLt0j6ehkmcYHKnc6E3MupdemYf_SJGQ1C5VlEJqRzCYAmMuLuvjHOicHCVDQ2s10y5VfoxdnLGixd2OUnTqeW7-8jUGFMXK55kq8kx0xCnME6WwO3b6MTbgVws5-gyxbICk0mzN3WnB9DoTYxLy6lzYoVxFGhvNjsEckCRJsN5xyAHoL9WjVwyyYjVaAp3xJXcqki4kS-2hnVqpkHh6dqzC-ty1-sSwRVe6EoG2sJP3tj0w1FfvC6dba0_dB3k"/>
+</div>
+<div class="flex flex-col justify-center">
+<h3 class="font-headline-md text-[18px] text-on-surface mb-unit-xs">Metanoia: The Shift</h3>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase">Dr. Isaiah Wealth</p>
+<button class="mt-unit-sm text-secondary font-label-sm text-label-sm flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-[16px]" data-icon="delete">delete</span> Remove
+                            </button>
+</div>
+</div>
+<div class="col-span-2 text-center font-body-md">₦6,000</div>
+<div class="col-span-2 flex justify-center">
+<div class="flex items-center border border-outline-variant rounded-lg">
+<button class="px-3 py-1 hover:bg-surface-container-high transition-colors">-</button>
+<span class="px-3 py-1 font-body-md border-x border-outline-variant">1</span>
+<button class="px-3 py-1 hover:bg-surface-container-high transition-colors">+</button>
+</div>
+</div>
+<div class="col-span-2 text-right font-body-md font-bold">₦6,000</div>
+</div>
+<div class="pt-unit-lg">
+<a class="inline-flex items-center text-primary font-label-md hover:translate-x-[-4px] transition-transform duration-200" href="#">
+<span class="material-symbols-outlined mr-2" data-icon="arrow_back">arrow_back</span>
+                        Continue Shopping
+                    </a>
+</div>
+</div>
+<!-- Order Summary Sidebar -->
+<aside class="lg:col-span-4">
+<div class="bg-surface-container-lowest p-unit-lg rounded-lg border border-outline-variant sticky top-32">
+<h2 class="font-headline-md text-headline-md mb-unit-lg">Order Summary</h2>
+<div class="space-y-unit-md mb-unit-lg">
+<div class="flex justify-between font-body-md">
+<span class="text-on-surface-variant">Subtotal</span>
+<span>₦15,700</span>
+</div>
+<div class="flex justify-between font-body-md">
+<span class="text-on-surface-variant">Shipping Fee</span>
+<span>₦2,000</span>
+</div>
+<div class="pt-unit-md border-t border-outline-variant">
+<div class="flex justify-between items-center">
+<span class="font-bold text-headline-md">Total</span>
+<span class="font-bold text-headline-md text-primary">₦17,700</span>
+</div>
+</div>
+</div>
+<div class="mb-unit-lg">
+<label class="font-label-md text-on-surface-variant block mb-unit-xs">Discount Code</label>
+<div class="flex gap-unit-xs">
+<input class="flex-grow bg-surface border border-outline-variant rounded-lg px-unit-md py-2 focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none" placeholder="Enter code" type="text"/>
+<button class="bg-primary-container text-on-primary-container font-label-md px-unit-md py-2 rounded-lg hover:opacity-90 transition-opacity">Apply</button>
+</div>
+</div>
+<button class="w-full bg-secondary text-white font-headline-md py-unit-md rounded-lg hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-secondary/20 flex items-center justify-center gap-2">
+                        Proceed to Checkout
+                        <span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+<div class="mt-unit-md flex items-center justify-center gap-unit-md opacity-40">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+<span class="font-label-sm text-label-sm">Secure Checkout Guaranteed</span>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full px-margin-desktop py-unit-xl grid grid-cols-1 md:grid-cols-3 gap-gutter bg-surface-container-low border-t border-outline-variant">
+<div>
+<h3 class="font-headline-md text-headline-md font-bold text-primary mb-unit-md">Kairos Bookshop</h3>
+<p class="font-body-md text-on-surface-variant pr-unit-lg max-w-sm">
+                The literary arm of Gospel Pillars Ministry. Dedicated to spreading the light of the gospel through high-fidelity theological publications.
+            </p>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-primary uppercase mb-unit-md">Contact Information</h4>
+<ul class="space-y-unit-sm">
+<li class="font-body-md text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]" data-icon="location_on">location_on</span>
+                    11 Kudirat Abiola Way, Ikeja, Lagos
+                </li>
+<li class="font-body-md text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]" data-icon="call">call</span>
+                    +2348135672235
+                </li>
+</ul>
+</div>
+<div class="flex flex-col justify-between">
+<div>
+<h4 class="font-label-md text-label-md text-primary uppercase mb-unit-md">Follow Us</h4>
+<div class="flex gap-unit-md">
+<a class="w-10 h-10 rounded-full bg-surface border border-outline-variant flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="facebook">face_nod</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-surface border border-outline-variant flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="public">public</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-surface border border-outline-variant flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+</a>
+</div>
+</div>
+<p class="mt-unit-xl font-label-sm text-label-sm text-on-surface-variant opacity-70">
+                © 2024 Kairos Bookshop. The literary arm of Gospel Pillars Ministry.
+            </p>
+</div>
+</footer>
+<script>
+        // Simple micro-interaction for quantity buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.classList.add('scale-95');
+            });
+            button.addEventListener('mouseup', () => {
+                button.classList.remove('scale-95');
+            });
+        });
+
+        // Sticky header behavior
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            const header = document.querySelector('header');
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.style.transform = 'translateY(-100%)';
+            } else {
+                header.style.transform = 'translateY(0)';
+            }
+            header.style.transition = 'transform 0.3s ease';
+            lastScroll = currentScroll;
+        });
+    </script>
+</body></html>
