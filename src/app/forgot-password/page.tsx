@@ -1,4 +1,36 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+
 export default function ForgotPasswordPage() {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError("");
+    setMessage("");
+    setLoading(true);
+
+    const res = await fetch("/api/auth/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error || "Something went wrong");
+    } else {
+      setMessage(data.message || "If the email exists, a reset link has been sent.");
+    }
+
+    setLoading(false);
+  }
+
   return (
     <main className="flex-grow flex items-center justify-center bg-surface-container-low min-h-[calc(100vh-64px)] px-margin-mobile md:px-margin-desktop py-unit-xl">
       <div className="w-full max-w-md bg-surface dark:bg-surface-dim rounded-modal shadow-sm border border-outline-variant/30 p-unit-lg md:p-unit-xl">
@@ -11,17 +43,24 @@ export default function ForgotPasswordPage() {
           <p className="font-body-md text-body-md text-on-surface-variant mt-unit-xs">Enter your email and we&apos;ll send you a reset link.</p>
         </div>
 
-        <form className="space-y-unit-md">
+        <form className="space-y-unit-md" onSubmit={handleSubmit}>
+          {error && (
+            <div className="bg-error-container/20 text-error font-body-md text-body-md p-unit-sm rounded-input text-center">{error}</div>
+          )}
+          {message && (
+            <div className="bg-tertiary-container/20 text-tertiary font-body-md text-body-md p-unit-sm rounded-input text-center">{message}</div>
+          )}
+
           <div>
             <label className="font-label-md text-label-md text-on-surface-variant mb-unit-xs block" htmlFor="email">Email Address</label>
             <div className="relative">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl pointer-events-none">mail</span>
-              <input id="email" type="email" placeholder="you@example.com" className="w-full h-12 pl-10 pr-4 bg-transparent border border-outline/40 rounded-input focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 transition-all duration-200" />
+              <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required className="w-full h-12 pl-10 pr-4 bg-transparent border border-outline/40 rounded-input focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 transition-all duration-200" />
             </div>
           </div>
 
-          <button type="submit" className="w-full h-12 bg-primary hover:bg-primary-fixed-dim text-on-primary font-label-md text-label-md rounded-button transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98] flex items-center justify-center gap-unit-sm">
-            Send Reset Link
+          <button type="submit" disabled={loading} className="w-full h-12 bg-primary hover:bg-primary-fixed-dim text-on-primary font-label-md text-label-md rounded-button transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98] flex items-center justify-center gap-unit-sm disabled:opacity-50 disabled:cursor-not-allowed">
+            {loading ? "Sending..." : "Send Reset Link"}
             <span className="material-symbols-outlined text-lg">send</span>
           </button>
         </form>

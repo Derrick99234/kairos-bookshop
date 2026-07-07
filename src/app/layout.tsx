@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
+import Providers from "@/components/Providers";
 
 export const metadata: Metadata = {
   title: "Kairos Bookshop | Find Your Next Transformation",
@@ -114,8 +115,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         }} />
       </head>
       <body className="text-on-background antialiased flex flex-col min-h-screen">
-        <Header />
-        {children}
+        <Providers>
+          <Header />
+          {children}
+        </Providers>
         <footer className="bg-primary-container text-on-primary w-full mt-auto">
           <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="flex flex-col gap-4">
@@ -173,7 +176,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <p className="font-body text-body-medium text-on-primary/60">&copy; 2024 Kairos Bookshop by Gospel Pillars. All rights reserved.</p>
           </div>
         </footer>
-      </body>
+        </body>
     </html>
   );
 }

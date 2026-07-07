@@ -1,4 +1,60 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { FormEvent, useState } from "react";
+
 export default function SignUpPage() {
+  const router = useRouter();
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    const form = new FormData(e.currentTarget);
+    const firstName = form.get("firstName") as string;
+    const lastName = form.get("lastName") as string;
+    const email = form.get("email") as string;
+    const phone = form.get("phone") as string;
+    const password = form.get("password") as string;
+    const confirmPassword = form.get("confirmPassword") as string;
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
+      setLoading(false);
+      return;
+    }
+
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: `${firstName} ${lastName}`.trim(),
+        email,
+        phone,
+        password,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error || "Something went wrong");
+      setLoading(false);
+      return;
+    }
+
+    router.push("/signin?registered=true");
+  }
+
   return (
     <main className="flex-grow flex items-center justify-center bg-surface-container-low min-h-[calc(100vh-64px)] px-margin-mobile md:px-margin-desktop py-unit-xl">
       <div className="w-full max-w-xl bg-surface dark:bg-surface-dim rounded-modal shadow-sm border border-outline-variant/30 p-unit-lg md:p-unit-xl">
@@ -11,18 +67,22 @@ export default function SignUpPage() {
           <p className="font-body-md text-body-md text-on-surface-variant mt-unit-xs">Fill in your details to get started.</p>
         </div>
 
-        <form className="space-y-unit-md">
+        <form className="space-y-unit-md" onSubmit={handleSubmit}>
+          {error && (
+            <div className="bg-error-container/20 text-error font-body-md text-body-md p-unit-sm rounded-input text-center">{error}</div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-unit-md">
             <div>
               <label className="font-label-md text-label-md text-on-surface-variant mb-unit-xs block" htmlFor="firstName">First Name</label>
               <div className="relative">
-                <input id="firstName" type="text" placeholder="John" className="w-full h-12 pl-4 pr-4 bg-transparent border border-outline/40 rounded-input focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 transition-all duration-200" />
+                <input id="firstName" name="firstName" type="text" placeholder="John" required className="w-full h-12 pl-4 pr-4 bg-transparent border border-outline/40 rounded-input focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 transition-all duration-200" />
               </div>
             </div>
             <div>
               <label className="font-label-md text-label-md text-on-surface-variant mb-unit-xs block" htmlFor="lastName">Last Name</label>
               <div className="relative">
-                <input id="lastName" type="text" placeholder="Doe" className="w-full h-12 pl-4 pr-4 bg-transparent border border-outline/40 rounded-input focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 transition-all duration-200" />
+                <input id="lastName" name="lastName" type="text" placeholder="Doe" required className="w-full h-12 pl-4 pr-4 bg-transparent border border-outline/40 rounded-input focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 transition-all duration-200" />
               </div>
             </div>
           </div>
@@ -31,7 +91,7 @@ export default function SignUpPage() {
             <label className="font-label-md text-label-md text-on-surface-variant mb-unit-xs block" htmlFor="email">Email Address</label>
             <div className="relative">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl pointer-events-none">mail</span>
-              <input id="email" type="email" placeholder="you@example.com" className="w-full h-12 pl-10 pr-4 bg-transparent border border-outline/40 rounded-input focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 transition-all duration-200" />
+              <input id="email" name="email" type="email" placeholder="you@example.com" required className="w-full h-12 pl-10 pr-4 bg-transparent border border-outline/40 rounded-input focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 transition-all duration-200" />
             </div>
           </div>
 
@@ -39,7 +99,7 @@ export default function SignUpPage() {
             <label className="font-label-md text-label-md text-on-surface-variant mb-unit-xs block" htmlFor="phone">Phone Number</label>
             <div className="relative">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl pointer-events-none">call</span>
-              <input id="phone" type="tel" placeholder="+234 800 000 0000" className="w-full h-12 pl-10 pr-4 bg-transparent border border-outline/40 rounded-input focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 transition-all duration-200" />
+              <input id="phone" name="phone" type="tel" placeholder="+234 800 000 0000" className="w-full h-12 pl-10 pr-4 bg-transparent border border-outline/40 rounded-input focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 transition-all duration-200" />
             </div>
           </div>
 
@@ -48,23 +108,20 @@ export default function SignUpPage() {
               <label className="font-label-md text-label-md text-on-surface-variant mb-unit-xs block" htmlFor="password">Password</label>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl pointer-events-none">lock</span>
-                <input id="password" type="password" placeholder="Create password" className="w-full h-12 pl-10 pr-10 bg-transparent border border-outline/40 rounded-input focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 transition-all duration-200" />
-                <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface transition-colors">
-                  <span className="material-symbols-outlined text-xl">visibility</span>
-                </button>
+                <input id="password" name="password" type="password" placeholder="Create password" required className="w-full h-12 pl-10 pr-10 bg-transparent border border-outline/40 rounded-input focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 transition-all duration-200" />
               </div>
             </div>
             <div>
               <label className="font-label-md text-label-md text-on-surface-variant mb-unit-xs block" htmlFor="confirmPassword">Confirm Password</label>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl pointer-events-none">lock</span>
-                <input id="confirmPassword" type="password" placeholder="Confirm password" className="w-full h-12 pl-10 pr-10 bg-transparent border border-outline/40 rounded-input focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 transition-all duration-200" />
+                <input id="confirmPassword" name="confirmPassword" type="password" placeholder="Confirm password" required className="w-full h-12 pl-10 pr-10 bg-transparent border border-outline/40 rounded-input focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 transition-all duration-200" />
               </div>
             </div>
           </div>
 
           <div className="flex items-start gap-unit-sm pt-unit-xs">
-            <input id="terms" type="checkbox" className="mt-0.5 accent-primary w-4 h-4 rounded-input border-outline/40 cursor-pointer" />
+            <input id="terms" name="terms" type="checkbox" required className="mt-0.5 accent-primary w-4 h-4 rounded-input border-outline/40 cursor-pointer" />
             <label htmlFor="terms" className="font-body-md text-body-md text-on-surface-variant cursor-pointer select-none">
               I agree to the{" "}
               <a href="#" className="text-primary hover:text-primary-fixed-dim font-label-md text-label-md transition-colors">Terms of Service</a>{" "}
@@ -73,8 +130,8 @@ export default function SignUpPage() {
             </label>
           </div>
 
-          <button type="submit" className="w-full h-12 bg-primary hover:bg-primary-fixed-dim text-on-primary font-label-md text-label-md rounded-button transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98] flex items-center justify-center gap-unit-sm">
-            Create Account
+          <button type="submit" disabled={loading} className="w-full h-12 bg-primary hover:bg-primary-fixed-dim text-on-primary font-label-md text-label-md rounded-button transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98] flex items-center justify-center gap-unit-sm disabled:opacity-50 disabled:cursor-not-allowed">
+            {loading ? "Creating Account..." : "Create Account"}
             <span className="material-symbols-outlined text-lg">arrow_forward</span>
           </button>
         </form>

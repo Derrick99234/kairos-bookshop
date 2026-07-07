@@ -1,6 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
+import { useState } from "react";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -11,6 +13,8 @@ const navLinks = [
 
 export default function Header() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <header className="bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline sticky top-0 w-full z-50">
@@ -40,13 +44,29 @@ export default function Header() {
         <div className="flex items-center gap-unit-md">
           <a href="/cart" className="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors relative">
             <span className="material-symbols-outlined">shopping_cart</span>
-            <span className="absolute -top-0.5 -right-0.5 bg-secondary text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">2</span>
           </a>
-          <a href="/signin" className="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
-            <span className="material-symbols-outlined">person</span>
-          </a>
+          {session ? (
+            <div className="relative">
+              <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+                <span className="material-symbols-outlined">account_circle</span>
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 top-full mt-unit-xs bg-surface dark:bg-surface-dim border border-outline-variant rounded-modal shadow-sm p-unit-sm min-w-40 z-50">
+                  <p className="font-label-md text-label-md text-on-surface px-unit-sm pb-unit-xs border-b border-outline-variant/50 mb-unit-xs truncate">{session.user?.name || session.user?.email}</p>
+                  <a href="/account" className="block font-body-md text-body-md text-on-surface-variant hover:text-on-surface px-unit-sm py-unit-xs rounded-input hover:bg-surface-container transition-colors">My Account</a>
+                  <a href="/account/orders" className="block font-body-md text-body-md text-on-surface-variant hover:text-on-surface px-unit-sm py-unit-xs rounded-input hover:bg-surface-container transition-colors">Orders</a>
+                  <button onClick={() => signOut()} className="w-full text-left font-body-md text-body-md text-error hover:text-error px-unit-sm py-unit-xs rounded-input hover:bg-error-container/20 transition-colors">Sign Out</button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <a href="/signin" className="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+              <span className="material-symbols-outlined">person</span>
+            </a>
+          )}
         </div>
       </nav>
     </header>
   );
 }
+
