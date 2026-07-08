@@ -1,185 +1,103 @@
-export default function Account() {
-  return (
-    <>
+"use client";
 
-      <main className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-unit-xl">
-        <div className="mb-unit-xl">
-          <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">Welcome back, Brother Samuel</h1>
-          <p className="font-body-md text-body-md text-on-surface-variant mt-unit-xs">Manage your orders and account settings.</p>
-        </div>
-        <div className="flex flex-col md:flex-row gap-unit-xl">
-          <aside className="w-full md:w-1/4 space-y-unit-sm">
-            <nav className="flex flex-col gap-unit-xs">
-              <a className="nav-sidebar-item flex items-center gap-unit-md px-unit-md py-3 md:py-unit-sm bg-primary text-on-primary rounded-lg shadow-sm" href="/account/orders">
-                <span className="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
-                <span className="font-label-md text-label-md">My Orders</span>
-              </a>
-              <a className="nav-sidebar-item flex items-center gap-unit-md px-unit-md py-3 md:py-unit-sm text-on-surface-variant hover:bg-surface-container hover:text-primary rounded-lg" href="/account">
-                <span className="material-symbols-outlined" data-icon="person">person</span>
-                <span className="font-label-md text-label-md">My Profile</span>
-              </a>
-              <a className="nav-sidebar-item flex items-center gap-unit-md px-unit-md py-3 md:py-unit-sm text-on-surface-variant hover:bg-surface-container hover:text-primary rounded-lg" href="/account">
-                <span className="material-symbols-outlined" data-icon="location_on">location_on</span>
-                <span className="font-label-md text-label-md">Saved Addresses</span>
-              </a>
-              <div className="pt-unit-md mt-unit-md border-t border-outline-variant">
-                <a className="nav-sidebar-item flex items-center gap-unit-md px-unit-md py-3 md:py-unit-sm text-secondary hover:bg-secondary-fixed rounded-lg" href="/signin">
-                  <span className="material-symbols-outlined" data-icon="logout">logout</span>
-                  <span className="font-label-md text-label-md">Logout</span>
-                </a>
-              </div>
-            </nav>
-            <div className="mt-unit-xl p-unit-md bg-primary-container rounded-xl text-on-primary-container relative overflow-hidden group cursor-pointer">
-              <div className="relative z-10">
-                <p className="font-label-sm text-label-sm mb-unit-xs uppercase tracking-widest opacity-80">Next Release</p>
-                <h3 className="font-headline-md text-headline-md leading-tight mb-unit-sm">Theology of Time</h3>
-                <p className="font-body-md text-body-md opacity-90">Pre-order now for exclusive access.</p>
-              </div>
-              <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
-                <span className="material-symbols-outlined text-[120px]" data-icon="auto_stories">auto_stories</span>
-              </div>
-            </div>
-          </aside>
-          <section className="w-full md:w-3/4">
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
-              <div className="p-unit-lg border-b border-outline-variant flex flex-col sm:flex-row justify-between items-start sm:items-center gap-unit-sm bg-white">
-                <h2 className="font-headline-md text-headline-md">Order History</h2>
-                <button className="text-primary font-label-md text-label-md flex items-center gap-unit-xs hover:underline">
-                  Download all as PDF
-                  <span className="material-symbols-outlined text-sm" data-icon="download">download</span>
-                </button>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-surface-container-low border-b border-outline-variant">
-                      <th className="px-unit-lg py-unit-md font-label-md text-label-md text-on-surface-variant">Order #</th>
-                      <th className="px-unit-lg py-unit-md font-label-md text-label-md text-on-surface-variant">Date</th>
-                      <th className="px-unit-lg py-unit-md font-label-md text-label-md text-on-surface-variant">Items</th>
-                      <th className="px-unit-lg py-unit-md font-label-md text-label-md text-on-surface-variant">Total</th>
-                      <th className="px-unit-lg py-unit-md font-label-md text-label-md text-on-surface-variant">Status</th>
-                      <th className="px-unit-lg py-unit-md"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-outline-variant bg-white">
-                    <tr className="order-row cursor-pointer">
-                      <td className="px-unit-lg py-unit-md font-label-md text-label-md text-primary font-bold">#KB-8921</td>
-                      <td className="px-unit-lg py-unit-md font-body-md text-body-md">Oct 24, 2024</td>
-                      <td className="px-unit-lg py-unit-md font-body-md text-body-md">The Sovereignty of God + 2 others</td>
-                      <td className="px-unit-lg py-unit-md font-body-md text-body-md font-semibold">&#8358;24,500.00</td>
-                      <td className="px-unit-lg py-unit-md">
-                        <span className="px-unit-sm py-unit-xs bg-primary-container text-white text-[11px] font-bold uppercase rounded tracking-wide">Completed</span>
-                      </td>
-                      <td className="px-unit-lg py-unit-md text-right">
-                        <button className="text-on-surface-variant hover:text-primary transition-colors">
-                          <span className="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
-                        </button>
-                      </td>
-                    </tr>
-                    <tr className="order-row cursor-pointer">
-                      <td className="px-unit-lg py-unit-md font-label-md text-label-md text-primary font-bold">#KB-8945</td>
-                      <td className="px-unit-lg py-unit-md font-body-md text-body-md">Nov 02, 2024</td>
-                      <td className="px-unit-lg py-unit-md font-body-md text-body-md">Kairos Devotional 2025</td>
-                      <td className="px-unit-lg py-unit-md font-body-md text-body-md font-semibold">&#8358;5,000.00</td>
-                      <td className="px-unit-lg py-unit-md">
-                        <span className="px-unit-sm py-unit-xs bg-secondary text-white text-[11px] font-bold uppercase rounded tracking-wide">Processing</span>
-                      </td>
-                      <td className="px-unit-lg py-unit-md text-right">
-                        <button className="text-on-surface-variant hover:text-primary transition-colors">
-                          <span className="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
-                        </button>
-                      </td>
-                    </tr>
-                    <tr className="order-row cursor-pointer">
-                      <td className="px-unit-lg py-unit-md font-label-md text-label-md text-primary font-bold">#KB-8812</td>
-                      <td className="px-unit-lg py-unit-md font-body-md text-body-md">Oct 12, 2024</td>
-                      <td className="px-unit-lg py-unit-md font-body-md text-body-md">Ministry Essentials Kit</td>
-                      <td className="px-unit-lg py-unit-md font-body-md text-body-md font-semibold">&#8358;12,200.00</td>
-                      <td className="px-unit-lg py-unit-md">
-                        <span className="px-unit-sm py-unit-xs bg-primary-fixed-dim text-primary text-[11px] font-bold uppercase rounded tracking-wide">Shipped</span>
-                      </td>
-                      <td className="px-unit-lg py-unit-md text-right">
-                        <button className="text-on-surface-variant hover:text-primary transition-colors">
-                          <span className="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
-                        </button>
-                      </td>
-                    </tr>
-                    <tr className="order-row cursor-pointer">
-                      <td className="px-unit-lg py-unit-md font-label-md text-label-md text-primary font-bold">#KB-8756</td>
-                      <td className="px-unit-lg py-unit-md font-body-md text-body-md">Sep 30, 2024</td>
-                      <td className="px-unit-lg py-unit-md font-body-md text-body-md">History of the Reformation</td>
-                      <td className="px-unit-lg py-unit-md font-body-md text-body-md font-semibold">&#8358;8,700.00</td>
-                      <td className="px-unit-lg py-unit-md">
-                        <span className="px-unit-sm py-unit-xs bg-primary-container text-white text-[11px] font-bold uppercase rounded tracking-wide">Completed</span>
-                      </td>
-                      <td className="px-unit-lg py-unit-md text-right">
-                        <button className="text-on-surface-variant hover:text-primary transition-colors">
-                          <span className="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
-                        </button>
-                      </td>
-                    </tr>
-                    <tr className="order-row cursor-pointer">
-                      <td className="px-unit-lg py-unit-md font-label-md text-label-md text-primary font-bold">#KB-8690</td>
-                      <td className="px-unit-lg py-unit-md font-body-md text-body-md">Sep 15, 2024</td>
-                      <td className="px-unit-lg py-unit-md font-body-md text-body-md">Understanding Spiritual Gifts</td>
-                      <td className="px-unit-lg py-unit-md font-body-md text-body-md font-semibold">&#8358;4,250.00</td>
-                      <td className="px-unit-lg py-unit-md">
-                        <span className="px-unit-sm py-unit-xs bg-primary-container text-white text-[11px] font-bold uppercase rounded tracking-wide">Completed</span>
-                      </td>
-                      <td className="px-unit-lg py-unit-md text-right">
-                        <button className="text-on-surface-variant hover:text-primary transition-colors">
-                          <span className="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div className="p-unit-lg bg-surface-container-low flex justify-center border-t border-outline-variant">
-                <nav className="flex gap-unit-xs">
-                  <button className="w-8 h-8 flex items-center justify-center rounded bg-white border border-outline-variant text-primary font-bold shadow-sm">1</button>
-                  <button className="w-8 h-8 flex items-center justify-center rounded bg-white border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-colors">2</button>
-                  <button className="w-8 h-8 flex items-center justify-center rounded bg-white border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-colors">3</button>
-                </nav>
-              </div>
-            </div>
-            <div className="mt-unit-lg p-unit-lg bg-white border border-outline-variant rounded-xl flex flex-col md:flex-row items-center gap-unit-lg">
-              <div className="bg-primary/5 p-unit-md rounded-full">
-                <span className="material-symbols-outlined text-primary text-[32px]" data-icon="support_agent">support_agent</span>
-              </div>
-              <div className="flex-grow text-center md:text-left">
-                <h4 className="font-headline-md text-headline-md text-on-surface">Need help with an order?</h4>
-                <p className="font-body-md text-body-md text-on-surface-variant">Our support team is available Monday to Friday, 9am - 6pm.</p>
-              </div>
-              <button className="px-unit-lg py-unit-md bg-primary text-white font-label-md text-label-md rounded-lg shadow-sm hover:opacity-90 transition-opacity">
-                Contact Support
-              </button>
-            </div>
-          </section>
-        </div>
+import { useEffect, useState } from "react";
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+
+interface Order {
+  id: string; orderNumber: string; status: string; total: number; createdAt: string;
+  items: { title: string; quantity: number; price: number }[];
+}
+
+export default function AccountPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (status === "unauthenticated") { router.push("/signin"); return; }
+    if (status !== "authenticated") return;
+    fetch("/api/orders")
+      .then((r) => r.json())
+      .then((d) => setOrders(Array.isArray(d) ? d : []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [status, router]);
+
+  if (status === "loading" || loading) {
+    return (
+      <main className="flex-grow pt-32 pb-unit-xl max-w-6xl mx-auto px-6">
+        <div className="animate-pulse space-y-4"><div className="h-8 w-48 bg-surface-container rounded" /><div className="h-64 bg-surface-container rounded-xl" /></div>
       </main>
+    );
+  }
 
-      <script dangerouslySetInnerHTML={{
-        __html: `
-          document.querySelectorAll('.order-row').forEach(row => {
-            row.addEventListener('click', () => {
-              console.log('Order detail requested for ' + row.querySelector('td').innerText);
-            });
-            row.classList.add('cursor-pointer');
-          });
-          const sidebarItems = document.querySelectorAll('.nav-sidebar-item');
-          sidebarItems.forEach(item => {
-            item.addEventListener('mouseenter', () => {
-              if(!item.classList.contains('bg-primary')) {
-                item.style.transform = 'translateX(4px)';
-              }
-            });
-            item.addEventListener('mouseleave', () => {
-              item.style.transform = 'translateX(0px)';
-            });
-          });
-        `
-      }} />
-    </>
+  return (
+    <main className="flex-grow pt-32 pb-unit-xl">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="flex flex-col md:flex-row gap-gutter">
+          <aside className="w-full md:w-64 shrink-0">
+            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-md mb-unit-md">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center text-primary font-bold text-xl">{session?.user?.name?.charAt(0) || "U"}</div>
+                <div>
+                  <p className="font-label-md">{session?.user?.name}</p>
+                  <p className="text-xs text-on-surface-variant">{session?.user?.email}</p>
+                </div>
+              </div>
+            </div>
+            <nav className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+              {[
+                { href: "/account", label: "My Orders", icon: "receipt_long", active: true },
+                { href: "/account", label: "My Profile", icon: "person", active: false },
+                { href: "/account", label: "Saved Addresses", icon: "location_on", active: false },
+              ].map((item) => (
+                <Link key={item.label} href={item.href} className={`flex items-center gap-3 px-unit-md py-3 text-sm transition-colors ${item.active ? "bg-primary-container/10 text-primary font-bold" : "text-on-surface-variant hover:bg-surface-container"}`}>
+                  <span className="material-symbols-outlined text-sm">{item.icon}</span>
+                  {item.label}
+                </Link>
+              ))}
+              <button onClick={() => signOut()} className="w-full flex items-center gap-3 px-unit-md py-3 text-sm text-secondary hover:bg-surface-container transition-colors">
+                <span className="material-symbols-outlined text-sm">logout</span>
+                Logout
+              </button>
+            </nav>
+          </aside>
+
+          <div className="flex-grow min-w-0">
+            <h1 className="font-headline-xl text-2xl md:text-headline-xl text-on-surface mb-unit-lg">My Orders</h1>
+            {orders.length === 0 ? (
+              <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg text-center">
+                <span className="material-symbols-outlined text-4xl text-outline opacity-30 mb-2">receipt_long</span>
+                <p className="text-on-surface-variant mb-4">No orders yet</p>
+                <Link href="/books" className="bg-primary text-white font-label-md py-3 px-unit-lg rounded-lg inline-block hover:bg-primary-fixed-dim transition-all">Start Shopping</Link>
+              </div>
+            ) : (
+              <div className="space-y-unit-md">
+                {orders.map((order) => (
+                  <Link key={order.id} href={`/account/orders`} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-md block hover:shadow-sm transition-all">
+                    <div className="flex items-center justify-between mb-unit-sm">
+                      <span className="font-label-md text-primary">#{order.orderNumber}</span>
+                      <span className={`px-2 py-0.5 rounded text-xs font-bold ${
+                        order.status === "DELIVERED" ? "bg-green-100 text-green-700" :
+                        order.status === "CANCELLED" ? "bg-red-100 text-red-700" :
+                        "bg-orange-100 text-orange-700"
+                      }`}>{order.status}</span>
+                    </div>
+                    <p className="text-sm text-on-surface-variant">{order.items.map((i) => `${i.title} x${i.quantity}`).join(", ")}</p>
+                    <div className="flex items-center justify-between mt-unit-sm">
+                      <span className="text-xs text-on-surface-variant">{new Date(order.createdAt).toLocaleDateString()}</span>
+                      <span className="font-bold text-primary">${order.total.toFixed(2)}</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </main>
   );
 }

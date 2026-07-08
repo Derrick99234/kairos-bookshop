@@ -1,3 +1,5 @@
+import NewsletterForm from "@/components/NewsletterForm";
+
 export default function About() {
   return (
     <>
@@ -108,10 +110,7 @@ export default function About() {
               <div className="p-6 md:p-12 md:w-2/3">
                 <h3 className="font-headline-lg text-headline-lg text-white mb-4">Stay Inspired</h3>
                 <p className="font-body-md text-primary-fixed opacity-80 mb-8 max-w-lg">Join our global community of readers. Receive weekly insights, new release notifications, and exclusive theological notes from Dr. Isaiah Wealth.</p>
-                <form className="flex flex-col sm:flex-row gap-2">
-                  <input className="flex-grow bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-secondary transition-all" placeholder="Enter your email" type="email" />
-                  <button className="bg-secondary text-white px-8 py-3 rounded-lg font-label-md hover:scale-105 active:scale-95 transition-all" type="submit">Subscribe</button>
-                </form>
+                <NewsletterForm dark />
               </div>
               <div className="md:w-1/3 relative min-h-[200px] overflow-hidden">
                 <div className="absolute inset-0 flex items-center justify-center">
