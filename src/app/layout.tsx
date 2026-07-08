@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Header from "@/components/Header";
 import Providers from "@/components/Providers";
+import PageShell from "@/components/PageShell";
 
 export const metadata: Metadata = {
   title: "Kairos Bookshop | Find Your Next Transformation",
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html className="scroll-smooth" lang="en">
+    <html className="scroll-smooth" lang="en" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta content="width=device-width, initial-scale=1.0" name="viewport" />
@@ -114,68 +114,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           `
         }} />
       </head>
-      <body className="text-on-background antialiased flex flex-col min-h-screen">
+      <body className="text-on-background antialiased flex flex-col min-h-screen" suppressHydrationWarning>
         <Providers>
-          <Header />
-          {children}
+          <PageShell>{children}</PageShell>
         </Providers>
-        <footer className="bg-primary-container text-on-primary w-full mt-auto">
-          <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-2">
-                <img alt="Kairos Bookshop Logo" className="h-8 w-8 object-contain brightness-0 invert" src="https://lh3.googleusercontent.com/aida/AP1WRLssB72y_9TyQKRY0cJqNLYUpwfxcngfFJ1MIQHVkqvUrXVeLY2QX6DrPkxXoN4tq_wkO7HsGY1bm0KFm-NHislOYg_V2IxMB_kVA-5IUI322A8dEQy11gapZReo6UMmSnCc5LvGPzWaORmWfX8ug2e67wpNS8-R9CBqsayE66AolDax4iXUXgwFTvXfDEC_Ya4Qasn72DZag8B185lQs-d8Pec1J9t7MsbOGQlpOa63CdSG701LcXbkHjaY" />
-                <span className="font-display font-bold text-lg text-on-primary">Kairos Bookshop</span>
-              </div>
-              <p className="font-body text-body-medium text-on-primary/80">A publishing arm of Gospel Pillars International, dedicated to spreading kingdom knowledge globally.</p>
-              <div className="flex gap-4 mt-2">
-                <a className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-on-primary hover:bg-white/20 transition-all cursor-pointer" href="https://kairosbookshop.org" target="_blank" rel="noopener noreferrer">
-                  <span className="material-symbols-outlined text-sm">public</span>
-                </a>
-                <a className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-on-primary hover:bg-white/20 transition-all cursor-pointer" href="mailto:info@kairosbookshop.org">
-                  <span className="material-symbols-outlined text-sm">alternate_email</span>
-                </a>
-                <a className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-on-primary hover:bg-white/20 transition-all cursor-pointer" href="tel:+2348135672235">
-                  <span className="material-symbols-outlined text-sm">call</span>
-                </a>
-              </div>
-            </div>
-            <div className="flex flex-col gap-4">
-              <h4 className="font-display font-bold text-on-primary">Visit Us</h4>
-              <div className="font-body text-body-medium text-on-primary/80 space-y-2">
-                <p className="flex items-start gap-2">
-                  <span className="material-symbols-outlined text-sm mt-1">location_on</span>
-                  11 Kudirat Abiola Way, Ikeja, Lagos
-                </p>
-                <p className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm">call</span>
-                  +234 8135672235
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-col gap-4">
-              <h4 className="font-display font-bold text-on-primary">Help &amp; Support</h4>
-              <nav className="flex flex-col gap-2">
-                <a className="font-body text-body-medium text-on-primary/80 hover:text-on-primary hover:underline transition-all cursor-pointer" href="/contact">Privacy Policy</a>
-                <a className="font-body text-body-medium text-on-primary/80 hover:text-on-primary hover:underline transition-all cursor-pointer" href="/contact">Terms of Service</a>
-                <a className="font-body text-body-medium text-on-primary/80 hover:text-on-primary hover:underline transition-all cursor-pointer" href="/contact">Shipping Info</a>
-                <a className="font-body text-body-medium text-on-primary/80 hover:text-on-primary hover:underline transition-all cursor-pointer" href="/contact">Returns</a>
-              </nav>
-            </div>
-            <div className="flex flex-col gap-4">
-              <h4 className="font-display font-bold text-on-primary">Newsletter</h4>
-              <p className="font-body text-body-medium text-on-primary/80">Stay updated with our newest arrivals and spiritual insights.</p>
-              <div className="relative mt-2">
-                <input className="w-full h-10 px-4 bg-white/10 text-on-primary placeholder-on-primary/50 rounded-lg border border-white/20 focus:border-white outline-none text-sm" placeholder="Your email..." type="email" />
-                <button className="absolute right-1 top-1 h-8 w-8 bg-white text-primary rounded-md flex items-center justify-center">
-                  <span className="material-symbols-outlined text-sm">send</span>
-                </button>
-              </div>
-            </div>
-          </div>
-          <div className="max-w-7xl mx-auto px-6 py-6 border-t border-white/10 flex justify-center">
-            <p className="font-body text-body-medium text-on-primary/60">&copy; 2024 Kairos Bookshop by Gospel Pillars. All rights reserved.</p>
-          </div>
-        </footer>
         </body>
     </html>
   );
