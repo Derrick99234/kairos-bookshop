@@ -15,7 +15,8 @@ export async function GET(
     include: { items: true, shippingAddress: true },
   });
 
-  if (!order || order.userId !== session.user.id) {
+  const isAdmin = (session.user as { role?: string }).role === "ADMIN";
+  if (!order || (!isAdmin && order.userId !== session.user.id)) {
     return err("Order not found", 404);
   }
 
