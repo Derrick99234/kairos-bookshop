@@ -12,6 +12,7 @@ model User {
   email     String   @unique
   password  String
   phone     String   @default("")
+  image     String   @default("")
   role      String   @default("CUSTOMER")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -208,4 +209,10 @@ model NewsletterSubscriber {
   email      String   @unique
   subscribed Boolean  @default(true)
   createdAt  DateTime @default(now())
+}
+
+model StoreSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String @default("")
 }

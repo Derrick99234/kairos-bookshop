@@ -11,15 +11,20 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log("Seeding database...");
 
-  const adminPassword = await hash("admin123", 12);
-  const userPassword = await hash("user123", 12);
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@kairos.com";
+  const adminPass = process.env.ADMIN_PASSWORD || "admin123";
+  const userEmail = process.env.SEED_USER_EMAIL || "samuel@example.com";
+  const userPass = process.env.SEED_USER_PASSWORD || "user123";
+
+  const adminPassword = await hash(adminPass, 12);
+  const userPassword = await hash(userPass, 12);
 
   const admin = await prisma.user.upsert({
-    where: { email: "admin@kairos.com" },
+    where: { email: adminEmail },
     update: {},
     create: {
       name: "Admin",
-      email: "admin@kairos.com",
+      email: adminEmail,
       password: adminPassword,
       phone: "+2348000000001",
       role: "ADMIN",
@@ -27,11 +32,11 @@ async function main() {
   });
 
   const user = await prisma.user.upsert({
-    where: { email: "samuel@example.com" },
+    where: { email: userEmail },
     update: {},
     create: {
       name: "Brother Samuel",
-      email: "samuel@example.com",
+      email: userEmail,
       password: userPassword,
       phone: "+2348000000002",
       role: "CUSTOMER",
@@ -455,8 +460,8 @@ Your prophetic destiny is waiting. Take the next step today.`,
   }
 
   console.log("Seed complete!");
-  console.log(`  Admin: admin@kairos.com / admin123`);
-  console.log(`  User: samuel@example.com / user123`);
+  console.log(`  Admin: ${adminEmail} / ${adminPass}`);
+  console.log(`  User: ${userEmail} / ${userPass}`);
   console.log(`  Categories: ${categories.length}`);
   console.log(`  Books: ${books.length}`);
   console.log(`  Blog Posts: ${blogPosts.length}`);
