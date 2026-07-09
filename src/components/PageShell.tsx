@@ -17,7 +17,9 @@ export default function PageShell({ children }: { children: React.ReactNode }) {
           <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2">
-                <img alt="Kairos Bookshop Logo" className="h-8 w-8 object-contain brightness-0 invert" src="https://lh3.googleusercontent.com/aida/AP1WRLssB72y_9TyQKRY0cJqNLYUpwfxcngfFJ1MIQHVkqvUrXVeLY2QX6DrPkxXoN4tq_wkO7HsGY1bm0KFm-NHislOYg_V2IxMB_kVA-5IUI322A8dEQy11gapZReo6UMmSnCc5LvGPzWaORmWfX8ug2e67wpNS8-R9CBqsayE66AolDax4iXUXgwFTvXfDEC_Ya4Qasn72DZag8B185lQs-d8Pec1J9t7MsbOGQlpOa63CdSG701LcXbkHjaY" />
+                <div className="w-8 h-8 bg-on-primary/20 rounded flex items-center justify-center">
+                  <span className="material-symbols-outlined text-on-primary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>menu_book</span>
+                </div>
                 <span className="font-display font-bold text-lg text-on-primary">Kairos Bookshop</span>
               </div>
               <p className="font-body text-body-medium text-on-primary/80">A publishing arm of Gospel Pillars International, dedicated to spreading kingdom knowledge globally.</p>
