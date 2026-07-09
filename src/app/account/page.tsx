@@ -51,8 +51,9 @@ export default function AccountPage() {
             <nav className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
               {[
                 { href: "/account", label: "My Orders", icon: "receipt_long", active: true },
-                { href: "/account", label: "My Profile", icon: "person", active: false },
-                { href: "/account", label: "Saved Addresses", icon: "location_on", active: false },
+                { href: "/account/wishlist", label: "Wishlist", icon: "favorite", active: false },
+                { href: "/account/profile", label: "My Profile", icon: "person", active: false },
+                { href: "/account/addresses", label: "Saved Addresses", icon: "location_on", active: false },
               ].map((item) => (
                 <Link key={item.label} href={item.href} className={`flex items-center gap-3 px-unit-md py-3 text-sm transition-colors ${item.active ? "bg-primary-container/10 text-primary font-bold" : "text-on-surface-variant hover:bg-surface-container"}`}>
                   <span className="material-symbols-outlined text-sm">{item.icon}</span>
@@ -77,7 +78,7 @@ export default function AccountPage() {
             ) : (
               <div className="space-y-unit-md">
                 {orders.map((order) => (
-                  <Link key={order.id} href={`/account/orders`} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-md block hover:shadow-sm transition-all">
+                  <Link key={order.id} href={`/account/orders/${order.id}`} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-md block hover:shadow-sm transition-all">
                     <div className="flex items-center justify-between mb-unit-sm">
                       <span className="font-label-md text-primary">#{order.orderNumber}</span>
                       <span className={`px-2 py-0.5 rounded text-xs font-bold ${
@@ -89,7 +90,7 @@ export default function AccountPage() {
                     <p className="text-sm text-on-surface-variant">{order.items.map((i) => `${i.title} x${i.quantity}`).join(", ")}</p>
                     <div className="flex items-center justify-between mt-unit-sm">
                       <span className="text-xs text-on-surface-variant">{new Date(order.createdAt).toLocaleDateString()}</span>
-                      <span className="font-bold text-primary">${order.total.toFixed(2)}</span>
+                      <span className="font-bold text-primary">₦{order.total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                   </Link>
                 ))}
