@@ -89,8 +89,12 @@ export default function ContactPage() {
             <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg">
               <h2 className="font-headline-md text-headline-md text-on-surface mb-unit-md">Follow Us</h2>
               <div className="flex gap-3">
-                {[ { icon: "play_circle", label: "YouTube" }, { icon: "facebook", label: "Facebook" }, { icon: "photo_camera", label: "Instagram" } ].map((s) => (
-                  <a key={s.label} href="#" className="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-primary hover:text-white transition-all cursor-pointer">
+                {[
+                  { icon: "play_circle", label: "YouTube", url: "https://youtube.com/@kairosbookshop" },
+                  { icon: "facebook", label: "Facebook", url: "https://facebook.com/kairosbookshop" },
+                  { icon: "photo_camera", label: "Instagram", url: "https://instagram.com/kairosbookshop" },
+                ].map((s) => (
+                  <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-primary hover:text-white transition-all cursor-pointer">
                     <span className="material-symbols-outlined">{s.icon}</span>
                   </a>
                 ))}

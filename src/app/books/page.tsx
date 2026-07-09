@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 interface Book {
@@ -17,12 +18,14 @@ interface Category {
 function ShopAllBooks() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { data: session } = useSession();
 
   const [books, setBooks] = useState<Book[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [total, setTotal] = useState(0);
   const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [addingId, setAddingId] = useState<string | null>(null);
 
   const search = searchParams.get("search") || "";
   const category = searchParams.get("category") || "";
@@ -61,13 +64,18 @@ function ShopAllBooks() {
     router.push(`/books?${params.toString()}`);
   }
 
-  function addToCart(e: React.MouseEvent, book: Book) {
+  async function addToCart(e: React.MouseEvent, book: Book) {
     e.preventDefault();
-    fetch("/api/cart/items", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bookId: book.id, quantity: 1, format: "PAPERBACK" }),
-    }).catch(() => {});
+    if (!session) { router.push("/signin"); return; }
+    setAddingId(book.id);
+    try {
+      await fetch("/api/cart/items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookId: book.id, quantity: 1, format: "PAPERBACK" }),
+      });
+    } catch { /* ignore */ }
+    setTimeout(() => setAddingId(null), 1500);
   }
 
   return (
@@ -139,11 +147,11 @@ function ShopAllBooks() {
                   <p className="font-label-md text-label-md text-on-surface-variant uppercase mt-1">{book.author}</p>
                   <div className="mt-auto pt-unit-sm flex items-center justify-between">
                     <div className="flex flex-col">
-                      {book.comparePrice > book.price && <span className="text-xs text-on-surface-variant line-through">${book.comparePrice.toFixed(2)}</span>}
-                      <span className="font-headline-md text-headline-md text-primary">${book.price.toFixed(2)}</span>
+                      {book.comparePrice > book.price && <span className="text-xs text-on-surface-variant line-through">₦{book.comparePrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>}
+                      <span className="font-headline-md text-headline-md text-primary">₦{book.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                     <button onClick={(e) => addToCart(e, book)} className="bg-primary text-white p-2 rounded-lg hover:opacity-90 active:scale-95 transition-all">
-                      <span className="material-symbols-outlined">add_shopping_cart</span>
+                      <span className="material-symbols-outlined">{addingId === book.id ? "check" : "add_shopping_cart"}</span>
                     </button>
                   </div>
                 </Link>

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface Book {
   id: string; title: string; slug: string; author: string; price: number;
@@ -25,6 +27,8 @@ const CATEGORY_ICONS: Record<string, string> = {
 };
 
 export default function Home() {
+  const { data: session } = useSession();
+  const router = useRouter();
   const [featured, setFeatured] = useState<Book[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -34,6 +38,20 @@ export default function Home() {
   const [showResults, setShowResults] = useState(false);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [addingId, setAddingId] = useState<string | null>(null);
+
+  async function addToCart(book: Book) {
+    if (!session) { router.push("/signin"); return; }
+    setAddingId(book.id);
+    try {
+      await fetch("/api/cart/items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookId: book.id, quantity: 1, format: "PAPERBACK" }),
+      });
+    } catch { /* ignore */ }
+    setTimeout(() => setAddingId(null), 1500);
+  }
 
   useEffect(() => {
     fetch("/api/books?featured=true&limit=4")
@@ -109,7 +127,7 @@ export default function Home() {
                         )}
                         <div className="text-left min-w-0">
                           <p className="font-label-md text-label-md text-on-surface truncate">{book.title}</p>
-                          <p className="text-xs text-on-surface-variant truncate">{book.author} — ${book.price.toFixed(2)}</p>
+                          <p className="text-xs text-on-surface-variant truncate">{book.author} — ₦{book.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                         </div>
                       </Link>
                     ))
@@ -166,9 +184,9 @@ export default function Home() {
                   <h4 className="font-headline-md text-lg text-primary line-clamp-2 mb-unit-sm">{book.title}</h4>
                   <p className="font-label-md text-label-md text-on-surface-variant uppercase">{book.author}</p>
                   <div className="mt-auto flex items-center justify-between pt-unit-sm">
-                    <span className="font-bold text-primary">${book.price.toFixed(2)}</span>
-                    <button onClick={(e) => { e.preventDefault(); }} className="p-2 bg-primary/5 text-primary rounded-full hover:bg-primary hover:text-white transition-all">
-                      <span className="material-symbols-outlined text-sm">shopping_cart</span>
+                    <span className="font-bold text-primary">₦{book.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <button onClick={(e) => { e.preventDefault(); addToCart(book); }} className="p-2 bg-primary/5 text-primary rounded-full hover:bg-primary hover:text-white transition-all">
+                      <span className="material-symbols-outlined text-sm">{addingId === book.id ? "check" : "shopping_cart"}</span>
                     </button>
                   </div>
                 </div>

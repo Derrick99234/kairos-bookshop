@@ -56,7 +56,7 @@ export default function CartPage() {
   }
 
   const subtotal = cart?.items.reduce((sum, i) => sum + i.book.price * i.quantity, 0) || 0;
-  const shipping = subtotal >= 50 ? 0 : 5;
+  const shipping = subtotal >= 50000 ? 0 : 2000;
   const total = subtotal + shipping;
 
   return (
@@ -89,7 +89,7 @@ export default function CartPage() {
                         <button onClick={() => updateQuantity(item.id, 1)} className="w-8 h-8 flex items-center justify-center border border-outline-variant rounded-md text-sm hover:bg-surface-container">+</button>
                       </div>
                       <div className="flex items-center gap-unit-sm">
-                        <span className="font-bold text-primary">${(item.book.price * item.quantity).toFixed(2)}</span>
+                        <span className="font-bold text-primary">₦{(item.book.price * item.quantity).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         <button onClick={() => removeItem(item.id)} className="text-secondary hover:text-secondary-fixed-dim text-sm"><span className="material-symbols-outlined text-sm">delete</span></button>
                       </div>
                     </div>
@@ -101,9 +101,9 @@ export default function CartPage() {
             <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-md h-fit">
               <h3 className="font-headline-md text-headline-md text-on-surface mb-unit-md">Order Summary</h3>
               <div className="space-y-3 text-sm">
-                <div className="flex justify-between"><span className="text-on-surface-variant">Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-                <div className="flex justify-between"><span className="text-on-surface-variant">Shipping</span><span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span></div>
-                <div className="border-t border-outline-variant pt-3 flex justify-between font-bold text-lg"><span>Total</span><span>${total.toFixed(2)}</span></div>
+                <div className="flex justify-between"><span className="text-on-surface-variant">Subtotal</span><span>₦{subtotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
+                <div className="flex justify-between"><span className="text-on-surface-variant">Shipping</span><span>{shipping === 0 ? "Free" : `₦${shipping.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</span></div>
+                <div className="border-t border-outline-variant pt-3 flex justify-between font-bold text-lg"><span>Total</span><span>₦{total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
               </div>
               <button onClick={() => router.push("/checkout")} className="w-full bg-primary text-white font-label-md py-4 rounded-lg mt-unit-md hover:bg-primary-fixed-dim transition-all active:scale-95">Proceed to Checkout</button>
               <Link href="/books" className="w-full block text-center text-primary font-label-md py-3 mt-2 hover:underline">Continue Shopping</Link>
