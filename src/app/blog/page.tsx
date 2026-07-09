@@ -46,8 +46,8 @@ export default function BlogPage() {
             {featured && (
               <Link href={`/blog/${featured.slug}`} className="block bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden hover:shadow-lg transition-all mb-gutter">
                 <div className="grid grid-cols-1 md:grid-cols-2">
-                  <div className="aspect-video md:aspect-auto bg-primary-container flex items-center justify-center min-h-[250px]">
-                    <span className="material-symbols-outlined text-white/50 text-8xl">article</span>
+                  <div className="aspect-video md:aspect-auto bg-surface-container overflow-hidden min-h-[250px]">
+                    {featured.imageUrl ? <img src={featured.imageUrl} alt={featured.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-outline opacity-30 text-8xl">article</span></div>}
                   </div>
                   <div className="p-unit-lg flex flex-col justify-center">
                     <span className="text-label-sm uppercase tracking-widest text-secondary mb-unit-xs">{featured.category}</span>
@@ -67,8 +67,8 @@ export default function BlogPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
               {rest.map((post) => (
                 <Link key={post.id} href={`/blog/${post.slug}`} className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden hover:shadow-lg transition-all flex flex-col">
-                  <div className="aspect-video bg-surface-container flex items-center justify-center">
-                    <span className="material-symbols-outlined text-outline opacity-30 text-5xl">article</span>
+                  <div className="aspect-video bg-surface-container overflow-hidden">
+                    {post.imageUrl ? <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-outline opacity-30 text-5xl">article</span></div>}
                   </div>
                   <div className="p-unit-md flex flex-col flex-grow">
                     <span className="text-label-sm uppercase tracking-widest text-secondary mb-unit-xs">{post.category}</span>

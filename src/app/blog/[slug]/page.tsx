@@ -61,8 +61,8 @@ export default function BlogPostPage() {
           <span>{new Date(post.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
         </div>
 
-        <div className="aspect-video bg-surface-container rounded-xl flex items-center justify-center mb-unit-lg">
-          <span className="material-symbols-outlined text-outline opacity-30 text-8xl">article</span>
+        <div className="aspect-video bg-surface-container rounded-xl overflow-hidden mb-unit-lg">
+          {post.imageUrl ? <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-outline opacity-30 text-8xl">article</span></div>}
         </div>
 
         <div className="prose prose-lg max-w-none">

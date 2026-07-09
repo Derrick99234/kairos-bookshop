@@ -49,6 +49,15 @@ export default function PageShell({ children }: { children: React.ReactNode }) {
               </div>
             </div>
             <div className="flex flex-col gap-4">
+              <h4 className="font-display font-bold text-on-primary">Quick Links</h4>
+              <nav className="flex flex-col gap-2">
+                <a className="font-body text-body-medium text-on-primary/80 hover:text-on-primary hover:underline transition-all cursor-pointer" href="/books">Shop Books</a>
+                <a className="font-body text-body-medium text-on-primary/80 hover:text-on-primary hover:underline transition-all cursor-pointer" href="/blog">Blog</a>
+                <a className="font-body text-body-medium text-on-primary/80 hover:text-on-primary hover:underline transition-all cursor-pointer" href="/about">About Us</a>
+                <a className="font-body text-body-medium text-on-primary/80 hover:text-on-primary hover:underline transition-all cursor-pointer" href="/contact">Contact</a>
+              </nav>
+            </div>
+            <div className="flex flex-col gap-4">
               <h4 className="font-display font-bold text-on-primary">Help &amp; Support</h4>
               <nav className="flex flex-col gap-2">
                 <a className="font-body text-body-medium text-on-primary/80 hover:text-on-primary hover:underline transition-all cursor-pointer" href="/privacy-policy">Privacy Policy</a>
@@ -66,7 +75,7 @@ export default function PageShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <div className="max-w-7xl mx-auto px-6 py-6 border-t border-white/10 flex justify-center">
-            <p className="font-body text-body-medium text-on-primary/60">&copy; 2024 Kairos Bookshop by Gospel Pillars. All rights reserved.</p>
+            <p className="font-body text-body-medium text-on-primary/60">&copy; {new Date().getFullYear()} Kairos Bookshop by Gospel Pillars. All rights reserved.</p>
           </div>
         </footer>
       )}
