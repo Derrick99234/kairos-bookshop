@@ -70,14 +70,16 @@ export default function Home() {
             <h1 className="font-headline-xl text-4xl md:text-6xl text-white leading-tight">Find Your Next <br /><span className="text-secondary-fixed">Transformation</span></h1>
             <p className="font-body-lg text-lg md:text-xl text-white/80 max-w-2xl mx-auto">Search thousands of curated spiritual titles, theological insights, and life-changing devotionals designed to steward your divine purpose.</p>
           </div>
-          <form onSubmit={handleSearch} className="w-full max-w-2xl relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-secondary to-primary-fixed-dim rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000" />
-            <div className="relative flex items-center bg-white rounded-xl shadow-2xl overflow-hidden p-1.5">
-              <span className="material-symbols-outlined ml-4 text-outline">search</span>
-              <input value={search} onChange={(e) => setSearch(e.target.value)} className="flex-grow border-none focus:ring-0 px-4 py-4 text-body-lg text-on-surface placeholder:text-outline" placeholder="Search by title, author, or topic (e.g. 'Prayer', 'Leadership')..." />
-              <button type="submit" className="bg-primary text-white font-label-md px-8 py-4 rounded-lg hover:bg-primary-container transition-all">Search</button>
-            </div>
-          </form>
+            <form onSubmit={handleSearch} className="w-full max-w-2xl relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-secondary to-primary-fixed-dim rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000" />
+              <div className="relative flex flex-col sm:flex-row items-stretch bg-white rounded-xl shadow-2xl overflow-hidden p-1.5">
+                <div className="flex items-center flex-1">
+                  <span className="material-symbols-outlined ml-4 text-outline shrink-0">search</span>
+                  <input value={search} onChange={(e) => setSearch(e.target.value)} className="flex-grow border-none focus:ring-0 px-3 sm:px-4 py-3 sm:py-4 text-body-md sm:text-body-lg text-on-surface placeholder:text-outline min-w-0" placeholder="Search by title, author, or topic..." />
+                </div>
+                <button type="submit" className="bg-primary text-white font-label-md px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-l-none sm:rounded-r-lg hover:bg-primary-container transition-all mt-1 sm:mt-0 mx-1 sm:mx-0">Search</button>
+              </div>
+            </form>
           <div className="flex flex-wrap justify-center gap-unit-sm text-white/80 text-label-sm">
             <span className="text-white/60">Popular:</span>
             <Link href="/books?search=Kingdom" className="hover:text-white underline decoration-white/30">Kingdom Finance</Link>
