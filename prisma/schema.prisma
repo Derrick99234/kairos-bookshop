@@ -17,12 +17,13 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  addresses   Address[]
-  reviews     Review[]
-  orders      Order[]
-  cart        Cart?
-  accounts    Account[]
-  sessions    Session[]
+  addresses     Address[]
+  reviews       Review[]
+  orders        Order[]
+  cart          Cart?
+  wishlistItems WishlistItem[]
+  accounts      Account[]
+  sessions      Session[]
 }
 
 model Account {
@@ -105,9 +106,10 @@ model Book {
   updatedAt     DateTime @updatedAt
 
   category    Category     @relation(fields: [categoryId], references: [id])
-  reviews     Review[]
-  cartItems   CartItem[]
-  orderItems  OrderItem[]
+  reviews       Review[]
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  wishlistItems WishlistItem[]
 }
 
 model Review {
@@ -178,6 +180,18 @@ model CartItem {
 
   cart Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
   book Book @relation(fields: [bookId], references: [id])
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  bookId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])
 }
 
 model BlogPost {

@@ -1,7 +1,10 @@
 "use client";
 
+"use client";
+
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 interface Review {
@@ -20,22 +23,40 @@ interface Book {
 export default function BookDetail() {
   const params = useParams();
   const router = useRouter();
+  const { data: session } = useSession();
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+  const [reviewDone, setReviewDone] = useState(false);
 
   useEffect(() => {
     if (!params?.slug) return;
     fetch(`/api/books/${params.slug}`)
       .then((r) => r.ok ? r.json() : Promise.reject())
-      .then(setBook)
+      .then((b) => {
+        setBook(b);
+        if (session) {
+          fetch("/api/wishlist")
+            .then((r) => r.json())
+            .then((items) => {
+              if (Array.isArray(items)) setWishlisted(items.some((i: { bookId: string }) => i.bookId === b.id));
+            })
+            .catch(() => {});
+        }
+      })
       .catch(() => router.push("/books"))
       .finally(() => setLoading(false));
-  }, [params?.slug, router]);
+  }, [params?.slug, router, session]);
 
   async function addToCart() {
     if (!book) return;
+    if (!session) { router.push("/signin"); return; }
     try {
       await fetch("/api/cart/items", {
         method: "POST",
@@ -45,6 +66,42 @@ export default function BookDetail() {
       setAdded(true);
       setTimeout(() => setAdded(false), 2000);
     } catch { /* ignore */ }
+  }
+
+  async function toggleWishlist() {
+    if (!book) return;
+    if (!session) { router.push("/signin"); return; }
+    try {
+      const res = await fetch("/api/wishlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookId: book.id }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      setWishlisted(data.wishlisted);
+    } catch { /* ignore */ }
+  }
+
+  async function submitReview(e: React.FormEvent) {
+    e.preventDefault();
+    if (!book) return;
+    setReviewSubmitting(true);
+    setReviewError("");
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookId: book.id, rating: reviewRating, comment: reviewComment }),
+      });
+      if (!res.ok) { const d = await res.json(); setReviewError(d.error || "Failed to submit review"); return; }
+      setReviewDone(true);
+      setReviewComment("");
+      setReviewRating(5);
+      const updated = await fetch(`/api/books/${params.slug}`).then((r) => r.json());
+      setBook(updated);
+    } catch { setReviewError("Something went wrong"); }
+    finally { setReviewSubmitting(false); }
   }
 
   if (loading) return (
@@ -102,9 +159,9 @@ export default function BookDetail() {
             </div>
 
             <div className="flex items-center gap-4">
-              <span className="font-headline-lg text-headline-lg text-primary">${book.price.toFixed(2)}</span>
+              <span className="font-headline-lg text-headline-lg text-primary">₦{book.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               {book.comparePrice > book.price && (
-                <span className="text-lg text-on-surface-variant line-through">${book.comparePrice.toFixed(2)}</span>
+                <span className="text-lg text-on-surface-variant line-through">₦{book.comparePrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               )}
             </div>
 
@@ -129,8 +186,8 @@ export default function BookDetail() {
                     <span className="material-symbols-outlined">{added ? "check" : "shopping_cart"}</span>
                     {added ? "Added!" : "Add to Cart"}
                   </button>
-                  <button className="p-4 border border-outline-variant rounded-lg hover:bg-surface-container">
-                    <span className="material-symbols-outlined">favorite</span>
+                  <button onClick={toggleWishlist} className={`p-4 border rounded-lg hover:bg-surface-container transition-all ${wishlisted ? "border-secondary bg-secondary/5" : "border-outline-variant"}`}>
+                    <span className="material-symbols-outlined" style={{ fontVariationSettings: `'FILL' ${wishlisted ? 1 : 0}` }}>{wishlisted ? "favorite" : "favorite"}</span>
                   </button>
                 </div>
               </>
@@ -138,10 +195,10 @@ export default function BookDetail() {
           </div>
         </div>
 
-        {book.reviews.length > 0 && (
-          <section className="mt-unit-xl">
-            <h2 className="font-headline-lg text-headline-lg text-primary mb-unit-lg">Customer Reviews</h2>
-            <div className="space-y-unit-md">
+        <section className="mt-unit-xl">
+          <h2 className="font-headline-lg text-headline-lg text-primary mb-unit-lg">Customer Reviews</h2>
+          {book.reviews.length > 0 ? (
+            <div className="space-y-unit-md mb-unit-lg">
               {book.reviews.map((review) => (
                 <div key={review.id} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-md">
                   <div className="flex items-center justify-between mb-unit-sm">
@@ -160,8 +217,35 @@ export default function BookDetail() {
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <p className="text-on-surface-variant mb-unit-lg">No reviews yet. Be the first to review!</p>
+          )}
+
+          {session ? (
+            reviewDone ? (
+              <p className="text-green-600 font-label-md bg-green-50 border border-green-200 rounded-xl p-unit-md">Review submitted! Thank you.</p>
+            ) : (
+              <form onSubmit={submitReview} className="bg-surface-container-low border border-outline-variant rounded-xl p-unit-md">
+                <h3 className="font-headline-md text-headline-md text-on-surface mb-unit-md">Write a Review</h3>
+                {reviewError && <p className="text-red-600 text-sm mb-unit-sm">{reviewError}</p>}
+                <div className="flex items-center gap-1 mb-unit-sm">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <button key={i} type="button" onClick={() => setReviewRating(i + 1)} className="text-secondary p-0.5">
+                      <span className="material-symbols-outlined" style={{ fontVariationSettings: `'FILL' ${i < reviewRating ? 1 : 0}` }}>star</span>
+                    </button>
+                  ))}
+                  <span className="text-sm text-on-surface-variant ml-2">{reviewRating} of 5</span>
+                </div>
+                <textarea value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} placeholder="Share your thoughts about this book..." className="w-full border border-outline-variant rounded-lg p-3 text-body-md outline-none focus:border-primary min-h-24 resize-none" />
+                <button disabled={reviewSubmitting} className="mt-unit-sm bg-primary text-white font-label-md py-3 px-unit-lg rounded-lg hover:bg-primary-fixed-dim transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2">
+                  {reviewSubmitting ? <><span className="material-symbols-outlined animate-spin text-sm">progress_activity</span> Submitting...</> : "Submit Review"}
+                </button>
+              </form>
+            )
+          ) : (
+            <p className="text-on-surface-variant text-sm">Please <Link href="/signin" className="text-primary hover:underline">sign in</Link> to leave a review.</p>
+          )}
+        </section>
       </div>
     </main>
   );
