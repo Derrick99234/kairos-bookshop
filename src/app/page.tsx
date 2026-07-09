@@ -29,6 +29,9 @@ export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [search, setSearch] = useState("");
+  const [searchResults, setSearchResults] = useState<Book[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
 
@@ -40,6 +43,20 @@ export default function Home() {
     fetch("/api/blog?limit=2")
       .then((r) => r.json()).then((d) => setPosts(Array.isArray(d) ? d.slice(0, 2) : [])).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (search.trim().length < 2) { setSearchResults([]); setShowResults(false); return; }
+    setSearching(true);
+    setShowResults(true);
+    const t = setTimeout(() => {
+      fetch(`/api/books?search=${encodeURIComponent(search.trim())}&limit=5`)
+        .then((r) => r.json())
+        .then((d) => setSearchResults(d.books || []))
+        .catch(() => setSearchResults([]))
+        .finally(() => setSearching(false));
+    }, 300);
+    return () => clearTimeout(t);
+  }, [search]);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -72,13 +89,38 @@ export default function Home() {
           </div>
             <form onSubmit={handleSearch} className="w-full max-w-2xl relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-secondary to-primary-fixed-dim rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000" />
-              <div className="relative flex flex-col sm:flex-row items-stretch bg-white rounded-xl shadow-2xl overflow-hidden p-1.5">
-                <div className="flex items-center flex-1">
-                  <span className="material-symbols-outlined ml-4 text-outline shrink-0">search</span>
-                  <input value={search} onChange={(e) => setSearch(e.target.value)} className="flex-grow border-none focus:ring-0 px-3 sm:px-4 py-3 sm:py-4 text-body-md sm:text-body-lg text-on-surface placeholder:text-outline min-w-0" placeholder="Search by title, author, or topic..." />
-                </div>
-                <button type="submit" className="bg-primary text-white font-label-md px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-l-none sm:rounded-r-lg hover:bg-primary-container transition-all mt-1 sm:mt-0 mx-1 sm:mx-0">Search</button>
+              <div className="relative flex items-center bg-white rounded-xl shadow-2xl overflow-hidden p-1.5">
+                <span className="material-symbols-outlined ml-4 text-outline shrink-0">search</span>
+                <input value={search} onChange={(e) => setSearch(e.target.value)} onFocus={() => search.trim().length >= 2 && setShowResults(true)} onBlur={() => setTimeout(() => setShowResults(false), 200)} className="flex-grow border-none focus:ring-0 px-4 py-4 text-body-lg text-on-surface placeholder:text-outline min-w-0" placeholder="Search by title, author, or topic..." autoComplete="off" />
               </div>
+              {showResults && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-outline-variant overflow-hidden z-50">
+                  {searching ? (
+                    <div className="p-4 text-center text-on-surface-variant text-sm">Searching...</div>
+                  ) : searchResults.length === 0 ? (
+                    <div className="p-4 text-center text-on-surface-variant text-sm">No books found for &ldquo;{search}&rdquo;</div>
+                  ) : (
+                    searchResults.map((book) => (
+                      <Link key={book.id} href={`/books/${book.slug}`} onClick={() => setShowResults(false)} className="flex items-center gap-3 px-4 py-3 hover:bg-surface-container transition-colors border-b border-outline-variant last:border-0">
+                        {book.imageUrl ? (
+                          <img src={book.imageUrl} alt="" className="w-10 h-14 rounded object-cover shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                        ) : (
+                          <div className="w-10 h-14 bg-surface-container-high rounded flex items-center justify-center shrink-0"><span className="material-symbols-outlined text-outline text-sm">book</span></div>
+                        )}
+                        <div className="text-left min-w-0">
+                          <p className="font-label-md text-label-md text-on-surface truncate">{book.title}</p>
+                          <p className="text-xs text-on-surface-variant truncate">{book.author} — ${book.price.toFixed(2)}</p>
+                        </div>
+                      </Link>
+                    ))
+                  )}
+                  {searchResults.length > 0 && (
+                    <Link href={`/books?search=${encodeURIComponent(search.trim())}`} onClick={() => setShowResults(false)} className="block p-3 text-center text-primary font-label-md text-label-md hover:bg-primary-container/10 transition-colors border-t border-outline-variant">
+                      View all results
+                    </Link>
+                  )}
+                </div>
+              )}
             </form>
           <div className="flex flex-wrap justify-center gap-unit-sm text-white/80 text-label-sm">
             <span className="text-white/60">Popular:</span>
