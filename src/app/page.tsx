@@ -114,7 +114,7 @@ export default function Home() {
   return (
     <main>
       {/* Hero */}
-      <section className="relative bg-primary-container py-unit-xl md:py-32 overflow-hidden">
+      <section className="relative bg-primary-container py-unit-xl md:py-32">
         <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
         <div className="absolute inset-0 opacity-30 pointer-events-none" style={{ background: "linear-gradient(135deg, #493DBB 0%, #E03636 100%)" }} />
         <div className="relative max-w-4xl mx-auto px-margin-mobile text-center flex flex-col items-center gap-unit-lg">
@@ -130,7 +130,7 @@ export default function Home() {
                 <input value={search} onChange={(e) => setSearch(e.target.value)} onFocus={() => search.trim().length >= 2 && setShowResults(true)} onBlur={() => setTimeout(() => setShowResults(false), 200)} className="flex-grow border-none focus:ring-0 px-4 py-4 text-body-lg text-on-surface placeholder:text-outline min-w-0" placeholder="Search by title, author, or topic..." autoComplete="off" />
               </div>
               {showResults && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-outline-variant overflow-hidden z-50">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-outline-variant overflow-y-auto max-h-60 z-50">
                   {searching ? (
                     <div className="p-4 text-center text-on-surface-variant text-sm">Searching...</div>
                   ) : searchResults.length === 0 ? (
