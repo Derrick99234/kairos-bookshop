@@ -10,7 +10,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { shippingAddressId } = body;
+    const { shippingAddressId, street, city, state } = body;
 
     const cart = await prisma.cart.findUnique({
       where: { userId: session.user.id },
@@ -25,11 +25,19 @@ export async function POST(req: Request) {
 
     if (!cart || cart.items.length === 0) return err("Cart is empty");
 
-    let shippingAddress;
-    if (shippingAddressId) {
-      shippingAddress = await prisma.address.findUnique({
-        where: { id: shippingAddressId },
+    let shippingId = shippingAddressId;
+
+    if (!shippingId && street && city) {
+      const address = await prisma.address.create({
+        data: {
+          userId: session.user.id,
+          street,
+          city,
+          state: state || "",
+          isDefault: false,
+        },
       });
+      shippingId = address.id;
     }
 
     const subtotal = cart.items.reduce(
@@ -49,7 +57,7 @@ export async function POST(req: Request) {
         shipping,
         total,
         paymentStatus: "UNPAID",
-        shippingAddressId: shippingAddress?.id,
+        shippingAddressId: shippingId,
         items: {
           create: cart.items.map((item) => ({
             bookId: item.variant.book.id,
@@ -63,15 +71,24 @@ export async function POST(req: Request) {
       },
     });
 
+    const reference = `KB-${orderNumber}-${crypto.randomBytes(4).toString("hex")}`;
+    const callbackUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/checkout/callback`;
+
     const payment = await initializePayment({
       email: session.user.email!,
       amount: total,
-      reference: `KB-${orderNumber}-${crypto.randomBytes(4).toString("hex")}`,
+      reference,
       metadata: { orderId: order.id },
+      callbackUrl,
     });
 
+    if (!payment.status) {
+      return err(payment.message || "Payment initiation failed", 400);
+    }
+
     return ok({ authorization_url: payment.data.authorization_url, order });
-  } catch {
+  } catch (e) {
+    console.error(e);
     return err("Something went wrong", 500);
   }
 }

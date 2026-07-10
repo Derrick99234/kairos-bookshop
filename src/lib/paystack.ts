@@ -33,20 +33,23 @@ export async function initializePayment(params: {
   amount: number;
   reference: string;
   metadata?: Record<string, unknown>;
+  callbackUrl?: string;
 }): Promise<PaystackInitResponse> {
   const secret = await getSecretKey();
+  const body: Record<string, unknown> = {
+    email: params.email,
+    amount: Math.round(params.amount * 100),
+    reference: params.reference,
+    metadata: params.metadata,
+  };
+  if (params.callbackUrl) body.callback_url = params.callbackUrl;
   const res = await fetch(`${PAYSTACK_API}/transaction/initialize`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${secret}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      email: params.email,
-      amount: Math.round(params.amount * 100),
-      reference: params.reference,
-      metadata: params.metadata,
-    }),
+    body: JSON.stringify(body),
   });
   return res.json();
 }

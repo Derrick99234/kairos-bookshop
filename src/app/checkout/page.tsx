@@ -48,7 +48,7 @@ export default function CheckoutPage() {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shipping: { street, city, state } }),
+        body: JSON.stringify({ street, city, state }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Something went wrong"); return; }
