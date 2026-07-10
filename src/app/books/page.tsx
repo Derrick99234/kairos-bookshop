@@ -30,6 +30,7 @@ function ShopAllBooks() {
   const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [addingId, setAddingId] = useState<string | null>(null);
+  const [searchInput, setSearchInput] = useState("");
 
   const search = searchParams.get("search") || "";
   const category = searchParams.get("category") || "";
@@ -53,11 +54,19 @@ function ShopAllBooks() {
     } catch { /* ignore */ } finally { setLoading(false); }
   }, [search, category, sort, page]);
 
+  useEffect(() => { setSearchInput(search); }, [search]);
+
   useEffect(() => { fetchBooks(); }, [fetchBooks]);
 
   useEffect(() => {
     fetch("/api/categories").then((r) => r.json()).then(setCategories).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (searchInput === search) return;
+    const t = setTimeout(() => updateParams({ search: searchInput }), 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
   function updateParams(updates: Record<string, string>) {
     const params = new URLSearchParams(searchParams.toString());
@@ -125,10 +134,13 @@ function ShopAllBooks() {
             </div>
           </aside>
           <div className="w-full md:w-3/4">
-            <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.currentTarget); updateParams({ search: fd.get("search") as string }); }} className="relative mb-unit-lg">
-              <input name="search" defaultValue={search} className="w-full h-14 pl-12 pr-6 bg-surface-container-lowest border border-outline-variant rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-body-md outline-none" placeholder="Search by title or author..." />
-              <button type="submit" className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary">search</button>
-            </form>
+            <div className="relative mb-unit-lg">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+              <input value={searchInput} onChange={(e) => setSearchInput(e.target.value)} className="w-full h-14 pl-12 pr-6 bg-surface-container-lowest border border-outline-variant rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-body-md outline-none" placeholder="Search by title or author..." />
+              {searchInput && (
+                <button onClick={() => { setSearchInput(""); updateParams({ search: "" }); }} className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary cursor-pointer">close</button>
+              )}
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
               {loading ? Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="bg-surface-container-lowest rounded-lg p-4 animate-pulse">
