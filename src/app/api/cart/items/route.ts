@@ -19,10 +19,14 @@ export async function POST(req: Request) {
     });
     if (!variant) return err("Variant not found", 404);
 
-    const cart = await prisma.cart.findUnique({
+    let cart = await prisma.cart.findUnique({
       where: { userId: session.user.id },
     });
-    if (!cart) return err("Cart not found", 404);
+    if (!cart) {
+      cart = await prisma.cart.create({
+        data: { userId: session.user.id },
+      });
+    }
 
     const existing = await prisma.cartItem.findFirst({
       where: { cartId: cart.id, variantId },
