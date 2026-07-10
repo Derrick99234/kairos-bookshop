@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { ok, err } from "@/lib/utils";
 
-const SETTING_KEYS = ["paystackPublicKey", "paystackSecretKey", "resendApiKey", "resendSenderEmail", "gaTrackingId", "fbPixelId"];
+const SETTING_KEYS = ["paystackPublicKey", "paystackSecretKey", "smtpHost", "smtpPort", "smtpUser", "smtpPass", "smtpFrom", "gaTrackingId", "fbPixelId"];
 
 export async function GET() {
   const session = await auth();
@@ -24,8 +24,11 @@ export async function GET() {
     integrations: {
       paystackPublicKey: settingsMap.paystackPublicKey || "",
       paystackSecretKey: settingsMap.paystackSecretKey || "",
-      resendApiKey: settingsMap.resendApiKey || "",
-      resendSenderEmail: settingsMap.resendSenderEmail || "",
+      smtpHost: settingsMap.smtpHost || "",
+      smtpPort: settingsMap.smtpPort || "",
+      smtpUser: settingsMap.smtpUser || "",
+      smtpPass: settingsMap.smtpPass || "",
+      smtpFrom: settingsMap.smtpFrom || "",
       gaTrackingId: settingsMap.gaTrackingId || "",
       fbPixelId: settingsMap.fbPixelId || "",
     },

@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -12,13 +10,30 @@ interface Review {
   user: { name: string };
 }
 
+interface Variant {
+  id: string; format: string; price: number; comparePrice: number; stock: number; sku: string;
+}
+
 interface Book {
   id: string; title: string; slug: string; author: string; description: string;
-  isbn: string; pages: number; price: number; comparePrice: number;
-  format: string; stock: number; imageUrl: string; images: string;
+  isbn: string; pages: number;
+  imageUrl: string; images: string;
   category: { id: string; name: string; slug: string };
+  variants: Variant[];
   reviews: Review[];
 }
+
+const FORMAT_LABELS: Record<string, string> = {
+  HARDCOPY: "Hardcopy",
+  SOFTCOPY: "Softcopy",
+  AUDIO_BOOK: "Audio Book",
+};
+
+const FORMAT_ICONS: Record<string, string> = {
+  HARDCOPY: "menu_book",
+  SOFTCOPY: "tablet",
+  AUDIO_BOOK: "headphones",
+};
 
 export default function BookDetail() {
   const params = useParams();
@@ -26,6 +41,7 @@ export default function BookDetail() {
   const { data: session } = useSession();
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
@@ -34,13 +50,16 @@ export default function BookDetail() {
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewError, setReviewError] = useState("");
   const [reviewDone, setReviewDone] = useState(false);
+  const [descExpanded, setDescExpanded] = useState(false);
 
   useEffect(() => {
     if (!params?.slug) return;
     fetch(`/api/books/${params.slug}`)
       .then((r) => r.ok ? r.json() : Promise.reject())
-      .then((b) => {
+      .then((b: Book) => {
         setBook(b);
+        const inStock = b.variants.find((v) => v.stock > 0);
+        setSelectedVariant(inStock || b.variants[0]);
         if (session) {
           fetch("/api/wishlist")
             .then((r) => r.json())
@@ -55,13 +74,13 @@ export default function BookDetail() {
   }, [params?.slug, router, session]);
 
   async function addToCart() {
-    if (!book) return;
+    if (!book || !selectedVariant) return;
     if (!session) { router.push("/signin"); return; }
     try {
       await fetch("/api/cart/items", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bookId: book.id, quantity, format: book.format }),
+        body: JSON.stringify({ variantId: selectedVariant.id, quantity }),
       });
       setAdded(true);
       setTimeout(() => setAdded(false), 2000);
@@ -118,7 +137,7 @@ export default function BookDetail() {
     </main>
   );
 
-  if (!book) return null;
+  if (!book || !selectedVariant) return null;
 
   const avgRating = book.reviews.length
     ? (book.reviews.reduce((s, r) => s + r.rating, 0) / book.reviews.length).toFixed(1)
@@ -159,27 +178,52 @@ export default function BookDetail() {
             </div>
 
             <div className="flex items-center gap-4">
-              <span className="font-headline-lg text-headline-lg text-primary">₦{book.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-              {book.comparePrice > book.price && (
-                <span className="text-lg text-on-surface-variant line-through">₦{book.comparePrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span className="font-headline-lg text-headline-lg text-primary">
+                ₦{selectedVariant.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+              {selectedVariant.comparePrice > selectedVariant.price && (
+                <span className="text-lg text-on-surface-variant line-through">
+                  ₦{selectedVariant.comparePrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
               )}
             </div>
 
-            <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">{book.description}</p>
+            <div className="flex flex-wrap gap-unit-sm">
+              {book.variants.map((v) => {
+                const selected = selectedVariant.id === v.id;
+                return (
+                  <button
+                    key={v.id}
+                    onClick={() => { setSelectedVariant(v); setQuantity(1); }}
+                    className={`flex items-center gap-2 px-4 py-3 rounded-lg border-2 transition-all text-left ${
+                      selected
+                        ? "border-primary bg-primary-container/10 text-primary"
+                        : "border-outline-variant bg-surface-container-low text-on-surface-variant hover:border-primary"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined">{FORMAT_ICONS[v.format] || "book"}</span>
+                    <div>
+                      <p className="text-sm font-bold">{FORMAT_LABELS[v.format] || v.format}</p>
+                      <p className="text-xs">₦{v.price.toLocaleString()}{v.stock === 0 ? " — Out of stock" : ""}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
 
             <div className="grid grid-cols-2 gap-unit-sm text-sm">
               <div className="bg-surface-container-low p-unit-sm rounded-lg"><span className="text-on-surface-variant">ISBN:</span> {book.isbn || "N/A"}</div>
               <div className="bg-surface-container-low p-unit-sm rounded-lg"><span className="text-on-surface-variant">Pages:</span> {book.pages}</div>
-              <div className="bg-surface-container-low p-unit-sm rounded-lg"><span className="text-on-surface-variant">Format:</span> {book.format}</div>
-              <div className="bg-surface-container-low p-unit-sm rounded-lg"><span className="text-on-surface-variant">Stock:</span> {book.stock > 0 ? `${book.stock} available` : "Out of stock"}</div>
+              <div className="bg-surface-container-low p-unit-sm rounded-lg"><span className="text-on-surface-variant">Format:</span> {FORMAT_LABELS[selectedVariant.format] || selectedVariant.format}</div>
+              <div className="bg-surface-container-low p-unit-sm rounded-lg"><span className="text-on-surface-variant">Stock:</span> {selectedVariant.stock > 0 ? `${selectedVariant.stock} available` : "Out of stock"}</div>
             </div>
 
-            {book.stock > 0 && (
+            {selectedVariant.stock > 0 && (
               <>
                 <div className="flex items-center gap-unit-sm mt-unit-sm">
                   <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 flex items-center justify-center border border-outline-variant rounded-lg hover:bg-surface-container">-</button>
                   <span className="w-12 text-center font-bold">{quantity}</span>
-                  <button onClick={() => setQuantity(Math.min(book.stock, quantity + 1))} className="w-10 h-10 flex items-center justify-center border border-outline-variant rounded-lg hover:bg-surface-container">+</button>
+                  <button onClick={() => setQuantity(Math.min(selectedVariant.stock, quantity + 1))} className="w-10 h-10 flex items-center justify-center border border-outline-variant rounded-lg hover:bg-surface-container">+</button>
                 </div>
                 <div className="flex items-center gap-unit-sm">
                   <button onClick={addToCart} className="flex-1 bg-primary text-white font-label-md py-4 px-unit-lg rounded-lg hover:bg-primary-fixed-dim transition-all active:scale-95 flex items-center justify-center gap-2">
@@ -187,13 +231,35 @@ export default function BookDetail() {
                     {added ? "Added!" : "Add to Cart"}
                   </button>
                   <button onClick={toggleWishlist} className={`p-4 border rounded-lg hover:bg-surface-container transition-all ${wishlisted ? "border-secondary bg-secondary/5" : "border-outline-variant"}`}>
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: `'FILL' ${wishlisted ? 1 : 0}` }}>{wishlisted ? "favorite" : "favorite"}</span>
+                    <span className="material-symbols-outlined" style={{ fontVariationSettings: `'FILL' ${wishlisted ? 1 : 0}` }}>favorite</span>
                   </button>
                 </div>
               </>
             )}
           </div>
         </div>
+
+        {book.description && (
+          <section className="mt-unit-xl">
+            <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-unit-lg">
+              <div className="flex items-center gap-3 mb-unit-md">
+                <div className="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-primary">description</span>
+                </div>
+                <h2 className="font-headline-lg text-headline-lg text-primary">About This Book</h2>
+              </div>
+              <div className="pl-[3.25rem]">
+                <div className={`font-body-md text-body-md text-on-surface-variant leading-relaxed whitespace-pre-line ${!descExpanded ? "line-clamp-4" : ""}`}>{book.description}</div>
+                {book.description.length > 300 && (
+                  <button onClick={() => setDescExpanded(!descExpanded)} className="flex items-center gap-1 mt-unit-sm text-primary font-label-md hover:underline">
+                    <span className="material-symbols-outlined text-sm">{descExpanded ? "expand_less" : "expand_more"}</span>
+                    {descExpanded ? "Show less" : "Read more"}
+                  </button>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
 
         <section className="mt-unit-xl">
           <h2 className="font-headline-lg text-headline-lg text-primary mb-unit-lg">Customer Reviews</h2>

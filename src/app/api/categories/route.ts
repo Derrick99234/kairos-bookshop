@@ -5,6 +5,7 @@ import { ok, err } from "@/lib/utils";
 export async function GET() {
   const categories = await prisma.category.findMany({
     orderBy: { name: "asc" },
+    include: { _count: { select: { books: true } } },
   });
   return ok(categories);
 }

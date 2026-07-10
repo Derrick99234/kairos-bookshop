@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { signIn } from "next-auth/react";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -124,9 +125,9 @@ export default function SignUpPage() {
             <input id="terms" name="terms" type="checkbox" required className="mt-0.5 accent-primary w-4 h-4 rounded-input border-outline/40 cursor-pointer" />
             <label htmlFor="terms" className="font-body-md text-body-md text-on-surface-variant cursor-pointer select-none">
               I agree to the{" "}
-              <a href="#" className="text-primary hover:text-primary-fixed-dim font-label-md text-label-md transition-colors">Terms of Service</a>{" "}
+              <a href="/terms-of-service" target="_blank" className="text-primary hover:text-primary-fixed-dim font-label-md text-label-md transition-colors">Terms of Service</a>{" "}
               and{" "}
-              <a href="#" className="text-primary hover:text-primary-fixed-dim font-label-md text-label-md transition-colors">Privacy Policy</a>
+              <a href="/privacy-policy" target="_blank" className="text-primary hover:text-primary-fixed-dim font-label-md text-label-md transition-colors">Privacy Policy</a>
             </label>
           </div>
 
@@ -142,7 +143,7 @@ export default function SignUpPage() {
           <div className="flex-1 h-px bg-outline-variant/50" />
         </div>
 
-        <button type="button" className="w-full h-12 flex items-center justify-center gap-unit-sm bg-surface-container-high hover:bg-transparent border border-outline/30 rounded-button transition-all duration-200 font-label-md text-label-md text-on-surface active:scale-[0.98]">
+        <button type="button" onClick={() => signIn("google", { redirectTo: "/" })} className="w-full h-12 flex items-center justify-center gap-unit-sm bg-surface-container-high hover:bg-transparent border border-outline/30 rounded-button transition-all duration-200 font-label-md text-label-md text-on-surface active:scale-[0.98]">
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />

@@ -16,6 +16,8 @@ export const forgotPasswordSchema = z.object({
   email: z.string().email("Invalid email address"),
 });
 
+export const FORMATS = ["HARDCOPY", "SOFTCOPY", "AUDIO_BOOK"] as const;
+
 export const bookSchema = z.object({
   title: z.string().min(1, "Title is required"),
   slug: z.string().min(1, "Slug is required"),
@@ -23,15 +25,23 @@ export const bookSchema = z.object({
   description: z.string().optional().default(""),
   isbn: z.string().optional().default(""),
   pages: z.number().int().optional().default(0),
-  price: z.number().positive("Price must be positive"),
-  comparePrice: z.number().optional().default(0),
-  format: z.enum(["PAPERBACK", "HARDCOVER"]).optional().default("PAPERBACK"),
   categoryId: z.string().min(1, "Category is required"),
-  stock: z.number().int().optional().default(0),
   imageUrl: z.string().optional().default(""),
   images: z.string().optional().default("[]"),
   featured: z.boolean().optional().default(false),
   published: z.boolean().optional().default(true),
+});
+
+export const variantSchema = z.object({
+  format: z.enum(FORMATS),
+  price: z.number().min(0, "Price must be 0 or more"),
+  comparePrice: z.number().optional().default(0),
+  stock: z.number().int().optional().default(0),
+  sku: z.string().optional().default(""),
+});
+
+export const bookWithVariantsSchema = bookSchema.extend({
+  variants: z.array(variantSchema).min(1, "At least one variant is required"),
 });
 
 export const categorySchema = z.object({
@@ -42,9 +52,8 @@ export const categorySchema = z.object({
 });
 
 export const cartItemSchema = z.object({
-  bookId: z.string().min(1),
+  variantId: z.string().min(1),
   quantity: z.number().int().positive().default(1),
-  format: z.enum(["PAPERBACK", "HARDCOVER"]).optional().default("PAPERBACK"),
 });
 
 export const reviewSchema = z.object({

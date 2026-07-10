@@ -30,10 +30,13 @@ export async function GET() {
       include: { _count: { select: { books: true } } },
     }),
     prisma.book.findMany({
-      where: { stock: { lte: 5 } },
-      select: { title: true, stock: true, slug: true, imageUrl: true },
-      orderBy: { stock: "asc" },
-    }),
+      where: { variants: { some: { stock: { lte: 5 } } } },
+      select: { title: true, slug: true, imageUrl: true, variants: { select: { stock: true } } },
+      orderBy: { createdAt: "desc" },
+    }).then((books) => books.map((b) => ({
+      title: b.title, slug: b.slug, imageUrl: b.imageUrl,
+      stock: Math.min(...b.variants.map((v) => v.stock)),
+    }))),
     prisma.order.count({ where: { createdAt: { gte: firstOfLastMonth, lt: firstOfMonth } } }),
     prisma.order.aggregate({ where: { createdAt: { gte: firstOfLastMonth, lt: firstOfMonth } }, _sum: { total: true } }),
   ]);

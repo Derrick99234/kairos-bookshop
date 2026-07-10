@@ -1,8 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { initializePayment, verifyPayment } from "@/lib/paystack";
+import { initializePayment } from "@/lib/paystack";
 import { generateOrderNumber, ok, err } from "@/lib/utils";
-import { sendOrderConfirmation } from "@/lib/email";
 import crypto from "crypto";
 
 export async function POST(req: Request) {
@@ -15,7 +14,13 @@ export async function POST(req: Request) {
 
     const cart = await prisma.cart.findUnique({
       where: { userId: session.user.id },
-      include: { items: { include: { book: true } } },
+      include: {
+        items: {
+          include: {
+            variant: { include: { book: true } },
+          },
+        },
+      },
     });
 
     if (!cart || cart.items.length === 0) return err("Cart is empty");
@@ -28,7 +33,7 @@ export async function POST(req: Request) {
     }
 
     const subtotal = cart.items.reduce(
-      (sum, item) => sum + item.book.price * item.quantity,
+      (sum, item) => sum + item.variant.price * item.quantity,
       0
     );
     const shipping = subtotal >= 50000 ? 0 : 2000;
@@ -47,11 +52,12 @@ export async function POST(req: Request) {
         shippingAddressId: shippingAddress?.id,
         items: {
           create: cart.items.map((item) => ({
-            bookId: item.bookId,
-            title: item.book.title,
-            price: item.book.price,
+            bookId: item.variant.book.id,
+            variantId: item.variant.id,
+            title: item.variant.book.title,
+            price: item.variant.price,
             quantity: item.quantity,
-            format: item.format,
+            format: item.variant.format,
           })),
         },
       },

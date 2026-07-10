@@ -10,8 +10,8 @@ export default function AdminSettings() {
 
   const [profile, setProfile] = useState({ name: "", email: "", phone: "", image: "" });
   const [integrations, setIntegrations] = useState({
-    paystackPublicKey: "", paystackSecretKey: "", resendApiKey: "",
-    resendSenderEmail: "", gaTrackingId: "", fbPixelId: "",
+    paystackPublicKey: "", paystackSecretKey: "", smtpHost: "",
+    smtpPort: "", smtpUser: "", smtpPass: "", smtpFrom: "", gaTrackingId: "", fbPixelId: "",
   });
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -209,17 +209,29 @@ export default function AdminSettings() {
             </div>
 
             <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg">
-              <h3 className="font-headline-md text-headline-md text-on-surface mb-unit-md">Email Service</h3>
-              <p className="text-sm text-on-surface-variant mb-unit-lg">Configure Resend for transactional emails (order confirmations, password resets).</p>
+              <h3 className="font-headline-md text-headline-md text-on-surface mb-unit-md">Email Service (SMTP)</h3>
+              <p className="text-sm text-on-surface-variant mb-unit-lg">Configure SMTP for transactional emails (order confirmations, password resets). Values here override .env settings.</p>
 
               <div className="space-y-unit-md max-w-lg">
                 <div>
-                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Resend API Key</label>
-                  <input type="password" value={integrations.resendApiKey} onChange={(e) => setIntegrations({ ...integrations, resendApiKey: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm font-mono text-xs" placeholder="re_..." />
+                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">SMTP Host</label>
+                  <input value={integrations.smtpHost} onChange={(e) => setIntegrations({ ...integrations, smtpHost: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" placeholder="mail.kairosbookshop.org" />
                 </div>
                 <div>
-                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Sender Email</label>
-                  <input value={integrations.resendSenderEmail} onChange={(e) => setIntegrations({ ...integrations, resendSenderEmail: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" placeholder="noreply@kairosbookshop.com" />
+                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">SMTP Port</label>
+                  <input value={integrations.smtpPort} onChange={(e) => setIntegrations({ ...integrations, smtpPort: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" placeholder="587" />
+                </div>
+                <div>
+                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">SMTP Username</label>
+                  <input value={integrations.smtpUser} onChange={(e) => setIntegrations({ ...integrations, smtpUser: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" placeholder="info@kairosbookshop.org" />
+                </div>
+                <div>
+                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">SMTP Password</label>
+                  <input type="password" value={integrations.smtpPass} onChange={(e) => setIntegrations({ ...integrations, smtpPass: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm font-mono text-xs" placeholder="..." />
+                </div>
+                <div>
+                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">From Address</label>
+                  <input value={integrations.smtpFrom} onChange={(e) => setIntegrations({ ...integrations, smtpFrom: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" placeholder="info@kairosbookshop.org" />
                 </div>
               </div>
             </div>

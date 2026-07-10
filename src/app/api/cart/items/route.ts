@@ -12,16 +12,20 @@ export async function POST(req: Request) {
     const parsed = cartItemSchema.safeParse(body);
     if (!parsed.success) return err(parsed.error.issues[0].message);
 
-    const { bookId, quantity, format } = parsed.data;
+    const { variantId, quantity } = parsed.data;
+
+    const variant = await prisma.bookVariant.findUnique({
+      where: { id: variantId },
+    });
+    if (!variant) return err("Variant not found", 404);
 
     const cart = await prisma.cart.findUnique({
       where: { userId: session.user.id },
     });
-
     if (!cart) return err("Cart not found", 404);
 
     const existing = await prisma.cartItem.findFirst({
-      where: { cartId: cart.id, bookId, format },
+      where: { cartId: cart.id, variantId },
     });
 
     if (existing) {
@@ -31,7 +35,7 @@ export async function POST(req: Request) {
       });
     } else {
       await prisma.cartItem.create({
-        data: { cartId: cart.id, bookId, quantity, format },
+        data: { cartId: cart.id, variantId, quantity },
       });
     }
 

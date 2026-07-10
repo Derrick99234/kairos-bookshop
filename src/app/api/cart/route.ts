@@ -10,7 +10,11 @@ export async function GET() {
     where: { userId: session.user.id },
     include: {
       items: {
-        include: { book: true },
+        include: {
+          variant: {
+            include: { book: true },
+          },
+        },
       },
     },
   });

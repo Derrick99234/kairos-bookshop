@@ -1,5 +1,11 @@
-const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY || "";
+import { prisma } from "./prisma";
+
 const PAYSTACK_API = "https://api.paystack.co";
+
+async function getSecretKey() {
+  const setting = await prisma.storeSetting.findUnique({ where: { key: "paystackSecretKey" } });
+  return setting?.value || process.env.PAYSTACK_SECRET_KEY || "";
+}
 
 interface PaystackInitResponse {
   status: boolean;
@@ -28,10 +34,11 @@ export async function initializePayment(params: {
   reference: string;
   metadata?: Record<string, unknown>;
 }): Promise<PaystackInitResponse> {
+  const secret = await getSecretKey();
   const res = await fetch(`${PAYSTACK_API}/transaction/initialize`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${PAYSTACK_SECRET}`,
+      Authorization: `Bearer ${secret}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -47,10 +54,11 @@ export async function initializePayment(params: {
 export async function verifyPayment(
   reference: string
 ): Promise<PaystackVerifyResponse> {
+  const secret = await getSecretKey();
   const res = await fetch(
     `${PAYSTACK_API}/transaction/verify/${reference}`,
     {
-      headers: { Authorization: `Bearer ${PAYSTACK_SECRET}` },
+      headers: { Authorization: `Bearer ${secret}` },
     }
   );
   return res.json();

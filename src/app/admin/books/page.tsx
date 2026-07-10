@@ -2,17 +2,29 @@
 
 import { useEffect, useState, useCallback } from "react";
 
+const FORMATS = ["HARDCOPY", "SOFTCOPY", "AUDIO_BOOK"];
+
 interface Category { id: string; name: string; slug: string; }
+interface Variant {
+  id?: string; format: string; price: number; comparePrice: number; stock: number; sku: string;
+}
 interface Book {
   id: string; title: string; slug: string; author: string; description: string;
-  price: number; comparePrice: number; stock: number; pages: number; isbn: string;
-  format: string; imageUrl: string; images: string; featured: boolean; published: boolean;
+  pages: number; isbn: string;
+  imageUrl: string; images: string; featured: boolean; published: boolean;
   category: { id: string; name: string } | null;
+  variants: Variant[];
 }
 
 interface BooksStats {
   totalSku: number; outOfStock: number; lowStock: number; totalValue: number;
 }
+
+const FORMAT_LABELS: Record<string, string> = {
+  HARDCOPY: "Hardcopy",
+  SOFTCOPY: "Softcopy",
+  AUDIO_BOOK: "Audio Book",
+};
 
 export default function AdminBooks() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -32,9 +44,12 @@ export default function AdminBooks() {
 
   const [form, setForm] = useState({
     title: "", slug: "", author: "", description: "", isbn: "", pages: 0,
-    price: 0, comparePrice: 0, stock: 0, categoryId: "",
-    imageUrl: "", images: "[]", featured: false, published: true, format: "PAPERBACK",
+    categoryId: "", imageUrl: "", images: "[]", featured: false, published: true,
   });
+
+  const [variants, setVariants] = useState<Variant[]>([
+    { format: "HARDCOPY", price: 0, comparePrice: 0, stock: 0, sku: "" },
+  ]);
 
   useEffect(() => { fetch("/api/categories").then((r) => r.json()).then(setCategories).catch(() => {}); }, []);
 
@@ -70,7 +85,8 @@ export default function AdminBooks() {
 
   function openCreate() {
     setEditing(null);
-    setForm({ title: "", slug: "", author: "", description: "", isbn: "", pages: 0, price: 0, comparePrice: 0, stock: 0, categoryId: "", imageUrl: "", images: "[]", featured: false, published: true, format: "PAPERBACK" });
+    setForm({ title: "", slug: "", author: "", description: "", isbn: "", pages: 0, categoryId: "", imageUrl: "", images: "[]", featured: false, published: true });
+    setVariants([{ format: "HARDCOPY", price: 0, comparePrice: 0, stock: 0, sku: "" }]);
     setShowForm(true);
   }
 
@@ -78,12 +94,29 @@ export default function AdminBooks() {
     setEditing(book);
     setForm({
       title: book.title, slug: book.slug, author: book.author, description: book.description,
-      isbn: book.isbn || "", pages: book.pages || 0, price: book.price, comparePrice: book.comparePrice,
-      stock: book.stock, categoryId: book.category?.id || "", imageUrl: book.imageUrl,
+      isbn: book.isbn || "", pages: book.pages || 0,
+      categoryId: book.category?.id || "", imageUrl: book.imageUrl,
       images: book.images || "[]", featured: book.featured, published: book.published,
-      format: book.format || "PAPERBACK",
     });
+    setVariants(book.variants.length > 0 ? book.variants.map((v) => ({ ...v })) : [{ format: "HARDCOPY", price: 0, comparePrice: 0, stock: 0, sku: "" }]);
     setShowForm(true);
+  }
+
+  function addVariant() {
+    const used = new Set(variants.map((v) => v.format));
+    const next = FORMATS.find((f) => !used.has(f));
+    if (!next) { showToast("All formats already added", "error"); return; }
+    setVariants([...variants, { format: next, price: 0, comparePrice: 0, stock: 0, sku: "" }]);
+  }
+
+  function removeVariant(idx: number) {
+    if (variants.length <= 1) { showToast("At least one variant required", "error"); return; }
+    setVariants(variants.filter((_, i) => i !== idx));
+  }
+
+  function updateVariant(idx: number, field: keyof Variant, value: string | number) {
+    const updated = variants.map((v, i) => i === idx ? { ...v, [field]: value } : v);
+    setVariants(updated);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -91,7 +124,11 @@ export default function AdminBooks() {
     const url = editing ? `/api/admin/books/${editing.slug}` : "/api/admin/books";
     const method = editing ? "PUT" : "POST";
     try {
-      const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, variants }),
+      });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Request failed"); }
       setShowForm(false);
       showToast(editing ? "Book updated successfully" : "Book created successfully", "success");
@@ -108,22 +145,26 @@ export default function AdminBooks() {
       if (!res.ok) throw new Error("Delete failed");
       showToast("Book deleted", "success");
       loadBooks();
-    } catch {
-      showToast("Failed to delete book", "error");
-    }
+    } catch { showToast("Failed to delete book", "error"); }
   }
 
-  async function handleDuplicate(book: Book) {
-    const newSlug = `${book.slug}-copy`;
-    setForm({
-      title: `${book.title} (Copy)`, slug: newSlug, author: book.author, description: book.description,
-      isbn: "", pages: book.pages, price: book.price, comparePrice: 0, stock: 0,
-      categoryId: book.category?.id || "", imageUrl: book.imageUrl, images: book.images || "[]",
-      featured: false, published: false, format: book.format || "PAPERBACK",
-    });
-    setEditing(null);
-    setShowForm(true);
-    setOpenMenu(null);
+  function getBookPriceRange(book: Book): string {
+    const prices = book.variants.map((v) => v.price).filter((p) => p > 0);
+    if (prices.length === 0) return "—";
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
+    return min === max ? `₦${min.toLocaleString()}` : `₦${min.toLocaleString()} – ₦${max.toLocaleString()}`;
+  }
+
+  function getTotalStock(book: Book): number {
+    return book.variants.reduce((s, v) => s + v.stock, 0);
+  }
+
+  function getStockStatus(book: Book): { label: string; color: string } {
+    const total = getTotalStock(book);
+    if (total === 0) return { label: "Out of Stock", color: "bg-red-100 text-red-700" };
+    if (total <= 5) return { label: "Low Stock", color: "bg-orange-100 text-orange-700" };
+    return { label: "Active", color: "bg-green-100 text-green-700" };
   }
 
   return (
@@ -150,7 +191,7 @@ export default function AdminBooks() {
           { label: "Total SKU", value: stats.totalSku, icon: "inventory_2", color: "bg-primary/5 text-primary" },
           { label: "Out of Stock", value: stats.outOfStock, icon: "block", color: "bg-red-50 text-red-600" },
           { label: "Low Stock", value: stats.lowStock, icon: "warning", color: "bg-orange-50 text-orange-600" },
-          { label: "Total Value", value: `$${stats.totalValue.toLocaleString()}`, icon: "payments", color: "bg-green-50 text-green-600" },
+          { label: "Total Value", value: `₦${stats.totalValue.toLocaleString()}`, icon: "payments", color: "bg-green-50 text-green-600" },
         ].map((s) => (
           <div key={s.label} className="bg-surface-container-lowest p-unit-md border border-outline-variant rounded-xl">
             <div className="flex justify-between items-start">
@@ -186,6 +227,7 @@ export default function AdminBooks() {
               <tr>
                 <th className="px-6 py-4">Book Details</th>
                 <th className="px-6 py-4">Category</th>
+                <th className="px-6 py-4">Formats</th>
                 <th className="px-6 py-4">Price</th>
                 <th className="px-6 py-4">Stock</th>
                 <th className="px-6 py-4">Status</th>
@@ -194,11 +236,11 @@ export default function AdminBooks() {
             </thead>
             <tbody className="divide-y divide-outline-variant">
               {loading ? (
-                <tr><td colSpan={6} className="px-6 py-8 text-center text-on-surface-variant">Loading...</td></tr>
+                <tr><td colSpan={7} className="px-6 py-8 text-center text-on-surface-variant">Loading...</td></tr>
               ) : books.length === 0 ? (
-                <tr><td colSpan={6} className="px-6 py-8 text-center text-on-surface-variant">No books found</td></tr>
+                <tr><td colSpan={7} className="px-6 py-8 text-center text-on-surface-variant">No books found</td></tr>
               ) : books.map((book) => {
-                const status = book.stock === 0 ? "out" : book.stock <= 5 ? "low" : "active";
+                const stockStatus = getStockStatus(book);
                 return (
                   <tr key={book.id} className="hover:bg-surface-container-low/50 transition-colors">
                     <td className="px-6 py-4">
@@ -208,24 +250,24 @@ export default function AdminBooks() {
                         )}
                         <div>
                           <p className="font-label-md text-label-md text-on-surface">{book.title}</p>
-                          <p className="text-xs text-on-surface-variant">{book.author} {book.format ? `· ${book.format}` : ""}</p>
+                          <p className="text-xs text-on-surface-variant">{book.author}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-on-surface-variant">{book.category?.name || "—"}</td>
-                    <td className="px-6 py-4 font-label-md text-label-md">
-                      ${book.price.toFixed(2)}
-                      {book.comparePrice > 0 && book.comparePrice > book.price && (
-                        <span className="text-xs text-on-surface-variant line-through ml-1">${book.comparePrice.toFixed(2)}</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-sm">{book.stock} units</td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-0.5 rounded text-xs font-bold ${
-                        status === "active" ? "bg-green-100 text-green-700" :
-                        status === "low" ? "bg-orange-100 text-orange-700" :
-                        "bg-red-100 text-red-700"
-                      }`}>{status === "active" ? "Active" : status === "low" ? "Low Stock" : "Out of Stock"}</span>
+                      <div className="flex flex-wrap gap-1">
+                        {book.variants.map((v) => (
+                          <span key={v.format} className="px-1.5 py-0.5 bg-surface-container-high rounded text-[10px] font-medium text-on-surface-variant">
+                            {FORMAT_LABELS[v.format] || v.format}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 font-label-md text-label-md">{getBookPriceRange(book)}</td>
+                    <td className="px-6 py-4 text-sm">{getTotalStock(book)} units</td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2 py-0.5 rounded text-xs font-bold ${stockStatus.color}`}>{stockStatus.label}</span>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-1">
@@ -236,7 +278,6 @@ export default function AdminBooks() {
                           {openMenu === book.id && (
                             <div className="absolute right-0 top-full mt-1 bg-surface border border-outline-variant rounded-lg shadow-lg z-50 min-w-[160px] py-1" onClick={() => setOpenMenu(null)} onMouseLeave={() => setOpenMenu(null)}>
                               <a href={`/books/${book.slug}`} target="_blank" className="flex items-center gap-2 px-3 py-2 text-sm text-on-surface hover:bg-surface-container-high"><span className="material-symbols-outlined text-sm">visibility</span>View on Site</a>
-                              <button onClick={() => handleDuplicate(book)} className="flex items-center gap-2 px-3 py-2 text-sm text-on-surface hover:bg-surface-container-high w-full text-left"><span className="material-symbols-outlined text-sm">content_copy</span>Duplicate</button>
                             </div>
                           )}
                         </div>
@@ -262,8 +303,8 @@ export default function AdminBooks() {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-unit-md" onClick={() => setShowForm(false)}>
-          <div className="bg-surface rounded-xl max-w-lg w-full p-unit-lg shadow-lg max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-start justify-center pt-[5vh] pb-unit-md overflow-y-auto" onClick={() => setShowForm(false)}>
+          <div className="bg-surface rounded-xl max-w-2xl w-full p-unit-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
             <h2 className="font-headline-md text-headline-md font-bold text-on-surface mb-unit-md">{editing ? "Edit Book" : "Add New Book"}</h2>
             <form onSubmit={handleSubmit} className="space-y-unit-md">
               <div className="grid grid-cols-2 gap-unit-md">
@@ -287,31 +328,12 @@ export default function AdminBooks() {
                   </select>
                 </div>
                 <div>
-                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Price ($)</label>
-                  <input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: parseFloat(e.target.value) || 0 })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" />
-                </div>
-                <div>
-                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Compare Price ($)</label>
-                  <input type="number" step="0.01" value={form.comparePrice} onChange={(e) => setForm({ ...form, comparePrice: parseFloat(e.target.value) || 0 })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" />
-                </div>
-                <div>
-                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Stock</label>
-                  <input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: parseInt(e.target.value) || 0 })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" />
-                </div>
-                <div>
                   <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Pages</label>
                   <input type="number" value={form.pages} onChange={(e) => setForm({ ...form, pages: parseInt(e.target.value) || 0 })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" />
                 </div>
                 <div>
                   <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">ISBN</label>
                   <input value={form.isbn} onChange={(e) => setForm({ ...form, isbn: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" placeholder="978-..." />
-                </div>
-                <div>
-                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Format</label>
-                  <select value={form.format} onChange={(e) => setForm({ ...form, format: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm">
-                    <option value="PAPERBACK">Paperback</option>
-                    <option value="HARDCOVER">Hardcover</option>
-                  </select>
                 </div>
                 <div className="col-span-2">
                   <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Description</label>
@@ -341,7 +363,51 @@ export default function AdminBooks() {
                   </label>
                 </div>
               </div>
-              <div className="flex items-center gap-unit-md pt-unit-sm">
+
+              <div className="border-t border-outline-variant pt-unit-md">
+                <div className="flex items-center justify-between mb-unit-sm">
+                  <h3 className="font-headline-md text-headline-md text-on-surface">Variants</h3>
+                  <button type="button" onClick={addVariant} className="text-primary text-sm flex items-center gap-1 hover:underline">
+                    <span className="material-symbols-outlined text-sm">add</span> Add Format
+                  </button>
+                </div>
+                <div className="space-y-unit-sm">
+                  {variants.map((v, idx) => (
+                    <div key={idx} className="bg-surface-container-low p-unit-sm rounded-lg border border-outline-variant">
+                      <div className="flex items-center justify-between mb-unit-xs">
+                        <select value={v.format} onChange={(e) => updateVariant(idx, "format", e.target.value)} className="h-8 px-2 bg-surface border border-outline-variant rounded text-sm font-medium" disabled={editing ? true : false}>
+                          {FORMATS.map((f) => (
+                            <option key={f} value={f} disabled={!editing && variants.some((x, i) => i !== idx && x.format === f)}>{FORMAT_LABELS[f]}</option>
+                          ))}
+                        </select>
+                        <button type="button" onClick={() => removeVariant(idx)} className="text-secondary text-sm flex items-center gap-1 hover:underline">
+                          <span className="material-symbols-outlined text-sm">remove</span>
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-4 gap-unit-sm">
+                        <div>
+                          <label className="text-[10px] text-on-surface-variant block">Price (₦)</label>
+                          <input type="number" step="0.01" value={v.price} onChange={(e) => updateVariant(idx, "price", parseFloat(e.target.value) || 0)} className="w-full h-8 px-2 bg-surface border border-outline-variant rounded text-sm" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-on-surface-variant block">Compare</label>
+                          <input type="number" step="0.01" value={v.comparePrice} onChange={(e) => updateVariant(idx, "comparePrice", parseFloat(e.target.value) || 0)} className="w-full h-8 px-2 bg-surface border border-outline-variant rounded text-sm" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-on-surface-variant block">Stock</label>
+                          <input type="number" value={v.stock} onChange={(e) => updateVariant(idx, "stock", parseInt(e.target.value) || 0)} className="w-full h-8 px-2 bg-surface border border-outline-variant rounded text-sm" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-on-surface-variant block">SKU</label>
+                          <input value={v.sku} onChange={(e) => updateVariant(idx, "sku", e.target.value)} className="w-full h-8 px-2 bg-surface border border-outline-variant rounded text-sm" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-unit-md pt-unit-sm border-t border-outline-variant">
                 <button type="submit" className="bg-primary text-white px-unit-md py-unit-sm rounded-lg font-label-md text-label-md hover:bg-primary-fixed-dim transition-all">{editing ? "Update" : "Create"}</button>
                 <button type="button" onClick={() => setShowForm(false)} className="px-unit-md py-unit-sm border border-outline-variant rounded-lg text-sm text-on-surface hover:bg-surface-container transition-colors">Cancel</button>
               </div>

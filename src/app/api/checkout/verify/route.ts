@@ -26,6 +26,19 @@ export async function POST(req: Request) {
           },
         });
 
+        const items = await prisma.orderItem.findMany({
+          where: { orderId: order.id },
+          select: { variantId: true, quantity: true },
+        });
+        for (const item of items) {
+          if (item.variantId) {
+            await prisma.bookVariant.update({
+              where: { id: item.variantId },
+              data: { stock: { decrement: item.quantity } },
+            });
+          }
+        }
+
         const cart = await prisma.cart.findUnique({
           where: { userId: order.userId },
         });

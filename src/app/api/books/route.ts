@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { bookSchema } from "@/lib/validations";
 import { ok, err } from "@/lib/utils";
 import { NextRequest } from "next/server";
 
@@ -16,8 +15,8 @@ export async function GET(req: NextRequest) {
 
   if (search) {
     where.OR = [
-      { title: { contains: search } },
-      { author: { contains: search } },
+      { title: { contains: search, mode: "insensitive" } },
+      { author: { contains: search, mode: "insensitive" } },
     ];
   }
 
@@ -25,11 +24,7 @@ export async function GET(req: NextRequest) {
   if (featured === "true") where.featured = true;
 
   const orderBy: Record<string, string> =
-    sort === "price_asc"
-      ? { price: "asc" }
-      : sort === "price_desc"
-        ? { price: "desc" }
-        : { createdAt: "desc" };
+    sort === "oldest" ? { createdAt: "asc" } : { createdAt: "desc" };
 
   const [books, total] = await Promise.all([
     prisma.book.findMany({
@@ -37,23 +32,10 @@ export async function GET(req: NextRequest) {
       orderBy,
       skip: (page - 1) * limit,
       take: limit,
-      include: { category: true },
+      include: { category: true, variants: true },
     }),
     prisma.book.count({ where }),
   ]);
 
   return ok({ books, total, page, pages: Math.ceil(total / limit) });
-}
-
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const parsed = bookSchema.safeParse(body);
-    if (!parsed.success) return err(parsed.error.issues[0].message);
-
-    const book = await prisma.book.create({ data: parsed.data });
-    return ok(book, 201);
-  } catch {
-    return err("Something went wrong", 500);
-  }
 }

@@ -5,12 +5,17 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const navLinks = [
-  { label: "Dashboard", href: "/admin", icon: "dashboard" },
-  { label: "Inventory", href: "/admin/books", icon: "menu_book" },
-  { label: "Orders", href: "/admin/orders", icon: "shopping_cart" },
-  { label: "Customers", href: "/admin/customers", icon: "group" },
-  { label: "Categories", href: "/admin/categories", icon: "category" },
-  { label: "Settings", href: "/admin/settings", icon: "settings" },
+  { label: "Dashboard", href: "/admin", icon: "dashboard", divider: false },
+  { label: "Inventory", href: "/admin/books", icon: "menu_book", divider: false },
+  { label: "Orders", href: "/admin/orders", icon: "shopping_cart", divider: false },
+  { label: "Customers", href: "/admin/customers", icon: "group", divider: false },
+  { label: "Categories", href: "/admin/categories", icon: "category", divider: false },
+  { label: "", href: "", icon: "", divider: true },
+  { label: "Blog", href: "/admin/blog", icon: "article", divider: false },
+  { label: "Contact", href: "/admin/contact", icon: "mail", divider: false },
+  { label: "Newsletter", href: "/admin/newsletter", icon: "campaign", divider: false },
+  { label: "", href: "", icon: "", divider: true },
+  { label: "Settings", href: "/admin/settings", icon: "settings", divider: false },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -60,6 +65,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
         <nav className="flex-1 space-y-1">
           {navLinks.map((link) => {
+            if (link.divider) {
+              return <div key={link.label} className="mx-6 my-2 border-t border-outline-variant/30" />;
+            }
             const isActive = pathname === link.href || (link.href !== "/admin" && pathname.startsWith(link.href));
             return (
               <a

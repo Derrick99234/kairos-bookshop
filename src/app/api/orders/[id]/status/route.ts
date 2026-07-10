@@ -27,5 +27,21 @@ export async function PUT(
   if (!isAdmin && order.status !== "PENDING") return err("Only pending orders can be cancelled");
 
   await prisma.order.update({ where: { id }, data: { status } });
+
+  if (status === "CANCELLED" && order.status !== "CANCELLED") {
+    const items = await prisma.orderItem.findMany({
+      where: { orderId: order.id },
+      select: { variantId: true, quantity: true },
+    });
+    for (const item of items) {
+      if (item.variantId) {
+        await prisma.bookVariant.update({
+          where: { id: item.variantId },
+          data: { stock: { increment: item.quantity } },
+        });
+      }
+    }
+  }
+
   return ok({ updated: true });
 }

@@ -17,11 +17,35 @@ export async function PUT(req: Request, { params }: { params: Promise<{ slug: st
   try {
     const { slug } = await params;
     const body = await req.json();
-    const parsed = bookSchema.partial().safeParse(body);
+    const { variants, ...bookData } = body;
+
+    const parsed = bookSchema.partial().safeParse(bookData);
     if (!parsed.success) return err(parsed.error.issues[0].message);
 
-    const book = await prisma.book.update({ where: { slug }, data: parsed.data });
-    return ok(book);
+    const book = await prisma.book.findUnique({ where: { slug } });
+    if (!book) return err("Book not found", 404);
+
+    const updatedBook = await prisma.book.update({
+      where: { slug },
+      data: {
+        ...parsed.data,
+        variants: variants
+          ? {
+              deleteMany: {},
+              create: variants.map((v: { format: string; price: number; comparePrice?: number; stock?: number; sku?: string }) => ({
+                format: v.format,
+                price: v.price,
+                comparePrice: v.comparePrice || 0,
+                stock: v.stock || 0,
+                sku: v.sku || "",
+              })),
+            }
+          : undefined,
+      },
+      include: { variants: true },
+    });
+
+    return ok(updatedBook);
   } catch {
     return err("Something went wrong", 500);
   }

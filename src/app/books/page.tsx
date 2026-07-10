@@ -5,10 +5,14 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
+interface Variant {
+  id: string; format: string; price: number; comparePrice: number; stock: number;
+}
 interface Book {
-  id: string; title: string; slug: string; author: string; price: number;
-  comparePrice: number; imageUrl: string; stock: number;
+  id: string; title: string; slug: string; author: string;
+  imageUrl: string;
   category: { id: string; name: string; slug: string };
+  variants: Variant[];
 }
 
 interface Category {
@@ -64,15 +68,23 @@ function ShopAllBooks() {
     router.push(`/books?${params.toString()}`);
   }
 
+  function getBestVariant(book: Book): Variant | null {
+    const inStock = book.variants.filter((v) => v.stock > 0);
+    if (inStock.length > 0) return inStock.reduce((a, b) => a.price < b.price ? a : b);
+    return book.variants.length > 0 ? book.variants.reduce((a, b) => a.price < b.price ? a : b) : null;
+  }
+
   async function addToCart(e: React.MouseEvent, book: Book) {
     e.preventDefault();
     if (!session) { router.push("/signin"); return; }
+    const variant = getBestVariant(book);
+    if (!variant) return;
     setAddingId(book.id);
     try {
       await fetch("/api/cart/items", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bookId: book.id, quantity: 1, format: "PAPERBACK" }),
+        body: JSON.stringify({ variantId: variant.id, quantity: 1 }),
       });
     } catch { /* ignore */ }
     setTimeout(() => setAddingId(null), 1500);
@@ -108,8 +120,7 @@ function ShopAllBooks() {
               <h3 className="font-headline-md text-label-md uppercase tracking-wider text-on-surface border-b border-outline-variant pb-unit-sm mb-unit-md">Sort By</h3>
               <select value={sort} onChange={(e) => updateParams({ sort: e.target.value })} className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-3 text-body-md focus:border-primary outline-none">
                 <option value="newest">Newest</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
+                <option value="oldest">Oldest</option>
               </select>
             </div>
           </aside>
@@ -131,31 +142,42 @@ function ShopAllBooks() {
                   <span className="material-symbols-outlined text-4xl mb-2">search_off</span>
                   <p>No books found. Try adjusting your search or filters.</p>
                 </div>
-              ) : books.map((book) => (
-                <Link key={book.id} href={`/books/${book.slug}`} className="bg-surface-container-lowest rounded-lg p-4 flex flex-col group hover:shadow-lg transition-all border border-outline-variant/50">
-                  <div className="relative aspect-[3/4] mb-unit-md overflow-hidden rounded-sm bg-surface-container">
-                    {book.imageUrl ? (
-                      <img src={book.imageUrl} alt={book.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-outline opacity-30 text-6xl">book</span></div>
-                    )}
-                    {book.comparePrice > book.price && (
-                      <div className="absolute top-2 right-2 bg-secondary px-2 py-1 text-white text-[10px] font-bold rounded-sm uppercase">Sale</div>
-                    )}
-                  </div>
-                  <h4 className="font-headline-md text-body-lg text-on-surface line-clamp-1">{book.title}</h4>
-                  <p className="font-label-md text-label-md text-on-surface-variant uppercase mt-1">{book.author}</p>
-                  <div className="mt-auto pt-unit-sm flex items-center justify-between">
-                    <div className="flex flex-col">
-                      {book.comparePrice > book.price && <span className="text-xs text-on-surface-variant line-through">₦{book.comparePrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>}
-                      <span className="font-headline-md text-headline-md text-primary">₦{book.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              ) : books.map((book) => {
+                const best = getBestVariant(book);
+                const minPrice = best?.price || 0;
+                const maxPrice = book.variants.length > 0 ? Math.max(...book.variants.map((v) => v.price)) : 0;
+                const hasSale = best && best.comparePrice > best.price;
+                return (
+                  <Link key={book.id} href={`/books/${book.slug}`} className="bg-surface-container-lowest rounded-lg p-4 flex flex-col group hover:shadow-lg transition-all border border-outline-variant/50">
+                    <div className="relative aspect-[3/4] mb-unit-md overflow-hidden rounded-sm bg-surface-container">
+                      {book.imageUrl ? (
+                        <img src={book.imageUrl} alt={book.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-outline opacity-30 text-6xl">book</span></div>
+                      )}
+                      {hasSale && (
+                        <div className="absolute top-2 right-2 bg-secondary px-2 py-1 text-white text-[10px] font-bold rounded-sm uppercase">Sale</div>
+                      )}
                     </div>
-                    <button onClick={(e) => addToCart(e, book)} className="bg-primary text-white p-2 rounded-lg hover:opacity-90 active:scale-95 transition-all">
-                      <span className="material-symbols-outlined">{addingId === book.id ? "check" : "add_shopping_cart"}</span>
-                    </button>
-                  </div>
-                </Link>
-              ))}
+                    <h4 className="font-headline-md text-body-lg text-on-surface line-clamp-1">{book.title}</h4>
+                    <p className="font-label-md text-label-md text-on-surface-variant uppercase mt-1">{book.author}</p>
+                    <div className="mt-auto pt-unit-sm flex items-center justify-between">
+                      <div className="flex flex-col">
+                        {hasSale && <span className="text-xs text-on-surface-variant line-through">₦{best!.comparePrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>}
+                        <span className="font-headline-md text-headline-md text-primary">
+                          {minPrice === maxPrice
+                            ? `₦${minPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                            : `₦${minPrice.toLocaleString()} – ₦${maxPrice.toLocaleString()}`
+                          }
+                        </span>
+                      </div>
+                      <button onClick={(e) => addToCart(e, book)} className="bg-primary text-white p-2 rounded-lg hover:opacity-90 active:scale-95 transition-all">
+                        <span className="material-symbols-outlined">{addingId === book.id ? "check" : "add_shopping_cart"}</span>
+                      </button>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
             {pages > 1 && (
               <div className="mt-unit-xl flex items-center justify-center gap-2">
