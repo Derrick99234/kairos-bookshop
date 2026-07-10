@@ -60,7 +60,7 @@ export default function AdminDashboard() {
   }
 
   const stats = [
-    { label: "Total Revenue", value: `$${data.totalRevenue.toLocaleString()}`, icon: "payments", trend: `${data.revenueTrend >= 0 ? "+" : ""}${data.revenueTrend}% from last month`, up: data.revenueTrend >= 0, color: "bg-primary/5 text-primary" },
+    { label: "Total Revenue", value: `₦${data.totalRevenue.toLocaleString()}`, icon: "payments", trend: `${data.revenueTrend >= 0 ? "+" : ""}${data.revenueTrend}% from last month`, up: data.revenueTrend >= 0, color: "bg-primary/5 text-primary" },
     { label: "Total Orders", value: data.totalOrders.toLocaleString(), icon: "shopping_bag", trend: `${data.orderTrend >= 0 ? "+" : ""}${data.orderTrend}% from last month`, up: data.orderTrend >= 0, color: "bg-primary/5 text-primary" },
     { label: "Books Sold", value: data.totalBooks.toLocaleString(), icon: "auto_stories", trend: `${data.lowStockBooks.length} low stock items`, up: data.lowStockBooks.length <= 3, color: "bg-primary/5 text-primary" },
     { label: "Active Customers", value: data.totalUsers.toLocaleString(), icon: "person_check", trend: `${data.recentOrders.filter((o) => o.user).length} recent buyers`, up: true, color: "bg-primary/5 text-primary" },
@@ -120,7 +120,7 @@ export default function AdminDashboard() {
                     <td className="px-6 py-4 font-body-md text-body-md">{order.user?.name || order.email || "Guest"}</td>
                     <td className="px-6 py-4 text-sm text-on-surface-variant">{order.items.length}</td>
                     <td className="px-6 py-4 text-on-surface-variant text-sm">{new Date(order.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</td>
-                    <td className="px-6 py-4 font-label-md text-label-md font-bold">${order.total.toFixed(2)}</td>
+                    <td className="px-6 py-4 font-label-md text-label-md font-bold">₦{order.total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded font-label-sm text-label-sm ${statusBadge[order.status] || "bg-surface-container text-on-surface-variant"}`}>{order.status}</span>
                     </td>

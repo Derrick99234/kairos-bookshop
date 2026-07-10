@@ -88,7 +88,7 @@ export default function AdminOrders() {
       o.user?.name || "Guest",
       o.email,
       o.items.length,
-      o.total.toFixed(2),
+      `₦${o.total.toFixed(2)}`,
       o.status,
       o.paymentStatus,
     ]);
@@ -119,7 +119,7 @@ export default function AdminOrders() {
           { label: "Total Orders", value: stats.totalOrders, icon: "shopping_bag", trend: "All time", color: "bg-primary/5 text-primary" },
           { label: "Processing", value: stats.processing, icon: "pending", trend: "Action Required", color: "bg-orange-50 text-orange-600" },
           { label: "Shipped Today", value: stats.shippedToday, icon: "local_shipping", trend: "Today", color: "bg-blue-50 text-blue-600" },
-          { label: "Total Revenue", value: `$${(stats.totalRevenue || 0).toLocaleString()}`, icon: "payments", trend: `${stats.revenueTrend >= 0 ? "+" : ""}${stats.revenueTrend}% vs prev period`, color: "bg-green-50 text-green-600" },
+          { label: "Total Revenue", value: `₦${(stats.totalRevenue || 0).toLocaleString()}`, icon: "payments", trend: `${stats.revenueTrend >= 0 ? "+" : ""}${stats.revenueTrend}% vs prev period`, color: "bg-green-50 text-green-600" },
         ].map((s) => (
           <div key={s.label} className="bg-surface-container-lowest p-unit-md border border-outline-variant rounded-xl">
             <div className="flex justify-between items-start">
@@ -185,7 +185,7 @@ export default function AdminOrders() {
                     <p className="text-xs text-on-surface-variant">{order.email}</p>
                   </td>
                   <td className="px-6 py-4 text-sm text-on-surface-variant">{order.items.length} item(s)</td>
-                  <td className="px-6 py-4 font-label-md text-label-md font-bold">${order.total.toFixed(2)}</td>
+                  <td className="px-6 py-4 font-label-md text-label-md font-bold">₦{order.total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                   <td className="px-6 py-4">
                     <select
                       value={order.status}
@@ -300,16 +300,16 @@ export default function AdminOrders() {
                       <td className="px-4 py-3 text-sm">{item.title}</td>
                       <td className="px-4 py-3 text-sm text-on-surface-variant">{item.format}</td>
                       <td className="px-4 py-3 text-sm text-right">{item.quantity}</td>
-                      <td className="px-4 py-3 text-sm text-right">${item.price.toFixed(2)}</td>
-                      <td className="px-4 py-3 text-sm text-right font-medium">${(item.price * item.quantity).toFixed(2)}</td>
+                      <td className="px-4 py-3 text-sm text-right">₦{item.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="px-4 py-3 text-sm text-right font-medium">₦{(item.price * item.quantity).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>
                   ))}
                 </tbody>
                 <tfoot className="bg-surface-container-low text-sm">
-                  <tr><td colSpan={4} className="px-4 py-2 text-right text-on-surface-variant">Subtotal</td><td className="px-4 py-2 text-right font-medium">${viewOrder.subtotal.toFixed(2)}</td></tr>
-                  {viewOrder.discount > 0 && <tr><td colSpan={4} className="px-4 py-2 text-right text-on-surface-variant">Discount</td><td className="px-4 py-2 text-right text-green-600">-${viewOrder.discount.toFixed(2)}</td></tr>}
-                  <tr><td colSpan={4} className="px-4 py-2 text-right text-on-surface-variant">Shipping</td><td className="px-4 py-2 text-right font-medium">${viewOrder.shipping.toFixed(2)}</td></tr>
-                  <tr className="font-bold"><td colSpan={4} className="px-4 py-2 text-right">Total</td><td className="px-4 py-2 text-right">${viewOrder.total.toFixed(2)}</td></tr>
+                  <tr><td colSpan={4} className="px-4 py-2 text-right text-on-surface-variant">Subtotal</td><td className="px-4 py-2 text-right font-medium">₦{viewOrder.subtotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>
+                  {viewOrder.discount > 0 && <tr><td colSpan={4} className="px-4 py-2 text-right text-on-surface-variant">Discount</td><td className="px-4 py-2 text-right text-green-600">-₦{viewOrder.discount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>}
+                  <tr><td colSpan={4} className="px-4 py-2 text-right text-on-surface-variant">Shipping</td><td className="px-4 py-2 text-right font-medium">₦{viewOrder.shipping.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>
+                  <tr className="font-bold"><td colSpan={4} className="px-4 py-2 text-right">Total</td><td className="px-4 py-2 text-right">₦{viewOrder.total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>
                 </tfoot>
               </table>
             </div>

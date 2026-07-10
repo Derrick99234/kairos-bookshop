@@ -122,7 +122,7 @@ export default function AdminCustomers() {
         {[
           { label: "Total Customers", value: stats.totalCustomers.toLocaleString(), icon: "group", trend: "Registered users", up: true, color: "bg-primary/5 text-primary" },
           { label: "Active This Month", value: stats.activeThisMonth.toLocaleString(), icon: "person_check", trend: "Ordered this month", up: true, color: "bg-green-50 text-green-600" },
-          { label: "Avg. Lifetime Value", value: `$${stats.avgLifetimeValue.toFixed(2)}`, icon: "account_balance", trend: "Average spend", up: true, color: "bg-blue-50 text-blue-600" },
+          { label: "Avg. Lifetime Value", value: `₦${stats.avgLifetimeValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, icon: "account_balance", trend: "Average spend", up: true, color: "bg-blue-50 text-blue-600" },
           { label: "Retention Rate", value: `${stats.retentionRate}%`, icon: "trending_up", trend: "Repeat customers", up: stats.retentionRate >= 30, color: "bg-orange-50 text-orange-600" },
         ].map((s) => (
           <div key={s.label} className="bg-surface-container-lowest p-unit-md border border-outline-variant rounded-xl">
@@ -150,9 +150,9 @@ export default function AdminCustomers() {
             </select>
             <select value={spendingFilter} onChange={(e) => { setSpendingFilter(e.target.value); setPage(1); }} className="h-9 px-3 bg-surface-container-low border border-outline-variant rounded-lg text-sm outline-none">
               <option value="">Spending: Any</option>
-              <option value="high">High (&gt;$100)</option>
-              <option value="medium">Medium ($20-$100)</option>
-              <option value="low">Low (&lt;$20)</option>
+              <option value="high">High (&gt;₦100,000)</option>
+              <option value="medium">Medium (₦20,000-₦100,000)</option>
+              <option value="low">Low (&lt;₦20,000)</option>
             </select>
             <select value={lastOrderFilter} onChange={(e) => { setLastOrderFilter(e.target.value); setPage(1); }} className="h-9 px-3 bg-surface-container-low border border-outline-variant rounded-lg text-sm outline-none">
               <option value="">Last Order: Any</option>
@@ -197,7 +197,7 @@ export default function AdminCustomers() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm">{c._count.orders}</td>
-                    <td className="px-6 py-4 text-sm font-medium">${totalSpent.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-sm font-medium">₦{totalSpent.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     <td className="px-6 py-4 text-sm text-on-surface-variant">{lastOrderDate}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="relative">

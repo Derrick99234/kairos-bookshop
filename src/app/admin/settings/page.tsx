@@ -17,7 +17,6 @@ export default function AdminSettings() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
-  const [twoFA, setTwoFA] = useState(false);
 
   const showToast = useCallback((message: string, type: "success" | "error") => {
     setToast({ message, type });
@@ -164,29 +163,7 @@ export default function AdminSettings() {
               </form>
             </div>
 
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg">
-              <h3 className="font-headline-md text-headline-md text-on-surface mb-unit-md">Two-Factor Authentication</h3>
-              <p className="text-sm text-on-surface-variant mb-unit-lg">Add an extra layer of security to your admin account.</p>
 
-              <div className="flex items-center justify-between p-unit-md bg-surface-container-low rounded-lg max-w-lg">
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-primary">verified_user</span>
-                  <div>
-                    <p className="font-label-md text-label-md text-on-surface">Authenticator App</p>
-                    <p className="text-xs text-on-surface-variant">Secure your account with time-based one-time passwords.</p>
-                  </div>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" checked={twoFA} onChange={(e) => setTwoFA(e.target.checked)} className="sr-only peer" />
-                  <div className="w-11 h-6 bg-surface-container-high rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" />
-                </label>
-              </div>
-              {twoFA && (
-                <div className="mt-unit-md p-unit-md bg-surface-container-low rounded-lg max-w-lg">
-                  <p className="text-sm text-on-surface-variant mb-2">2FA setup is not yet available. Check back for updates.</p>
-                </div>
-              )}
-            </div>
           </div>
         )}
 

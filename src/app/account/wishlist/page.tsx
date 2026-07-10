@@ -5,9 +5,14 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+interface WishlistVariant {
+  id: string; price: number;
+}
+
 interface WishlistBook {
-  id: string; title: string; slug: string; author: string; price: number; imageUrl: string;
+  id: string; title: string; slug: string; author: string; imageUrl: string;
   category: { name: string; slug: string };
+  variants: WishlistVariant[];
 }
 
 interface WishlistItem {
@@ -100,7 +105,15 @@ export default function WishlistPage() {
                       <Link href={`/books/${item.book.slug}`} className="font-headline-md text-headline-md text-primary line-clamp-2 mb-unit-sm hover:underline">{item.book.title}</Link>
                       <p className="font-label-md text-label-md text-on-surface-variant uppercase mb-unit-sm">{item.book.author}</p>
                       <div className="mt-auto flex items-center justify-between pt-unit-sm border-t border-outline-variant">
-                        <span className="font-bold text-primary">₦{item.book.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        <span className="font-bold text-primary">{(() => {
+                          const prices = item.book.variants.map((v) => v.price).filter((p) => p > 0);
+                          const min = Math.min(...prices);
+                          const max = Math.max(...prices);
+                          if (prices.length === 0) return "—";
+                          return min === max
+                            ? `₦${min.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                            : `₦${min.toLocaleString()} – ₦${max.toLocaleString()}`;
+                        })()}</span>
                         <div className="flex gap-1">
                           <button onClick={() => removeFromWishlist(item.bookId)} className="p-2 text-secondary hover:bg-secondary/5 rounded-full transition-all">
                             <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>

@@ -64,7 +64,7 @@ export default function AdminBooks() {
     setTimeout(() => setToast(null), 3000);
   }, []);
 
-  function loadBooks() {
+  const loadBooks = useCallback(() => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page), limit: "20" });
     if (search) params.set("search", search);
@@ -75,13 +75,17 @@ export default function AdminBooks() {
       .then((d) => { setBooks(d.books); setPages(d.pages); setTotal(d.total); if (d.stats) setStats(d.stats); })
       .catch(() => showToast("Failed to load books", "error"))
       .finally(() => setLoading(false));
-  }
+  }, [page, search, catFilter, statusFilter, showToast]);
 
-  useEffect(() => { loadBooks(); }, [page, catFilter, statusFilter]);
+  useEffect(() => { loadBooks(); }, [page, catFilter, statusFilter, loadBooks]);
+
   useEffect(() => {
-    const t = setTimeout(() => { if (page === 1) loadBooks(); else setPage(1); }, 300);
+    const t = setTimeout(() => {
+      if (page === 1) loadBooks();
+      else setPage(1);
+    }, 300);
     return () => clearTimeout(t);
-  }, [search]);
+  }, [search, page, loadBooks]);
 
   function openCreate() {
     setEditing(null);
