@@ -328,7 +328,7 @@ export default function Home() {
       )}
 
       {/* Newsletter */}
-      <section className="bg-primary-container py-unit-xl">
+      {/* <section className="bg-primary-container py-unit-xl">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col items-center text-center">
           <h2 className="font-headline-lg text-headline-lg text-white mb-unit-sm">Join the Kairos Community</h2>
           <p className="font-body-md text-white/80 mb-unit-lg max-w-lg">Get exclusive updates on new releases, spiritual insights, and upcoming events from Dr. Isaiah Macwealth.</p>
@@ -336,12 +336,12 @@ export default function Home() {
             <p className="text-white font-body-md bg-white/10 px-unit-lg py-unit-md rounded-lg">Thank you for subscribing!</p>
           ) : (
             <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-unit-sm w-full max-w-md">
-              <input value={email} onChange={(e) => setEmail(e.target.value)} className="flex-grow rounded-lg border-0 px-unit-md py-4 text-body-md focus:ring-2 focus:ring-secondary outline-none" placeholder="Enter your email address" type="email" required />
+              <input value={email} onChange={(e) => setEmail(e.target.value)} className="flex-grow rounded-lg border-1 px-unit-md py-4 text-white outline-none" placeholder="Enter your email address" type="email" required />
               <button type="submit" className="bg-secondary text-white font-label-md px-unit-lg py-4 rounded-lg hover:brightness-110 active:scale-95 transition-all">Subscribe</button>
             </form>
           )}
         </div>
-      </section>
+      </section> */}
     </main>
   );
 }

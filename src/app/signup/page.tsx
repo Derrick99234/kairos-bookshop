@@ -61,7 +61,9 @@ export default function SignUpPage() {
       <div className="w-full max-w-xl bg-surface dark:bg-surface-dim rounded-modal shadow-sm border border-outline-variant/30 p-unit-lg md:p-unit-xl">
         <div className="text-center mb-unit-lg">
           <div className="flex items-center justify-center gap-unit-sm mb-unit-md">
-            <img alt="Kairos Bookshop Logo" className="h-10 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLssB72y_9TyQKRY0cJqNLYUpwfxcngfFJ1MIQHVkqvUrXVeLY2QX6DrPkxXoN4tq_wkO7HsGY1bm0KFm-NHislOYg_V2IxMB_kVA-5IUI322A8dEQy11gapZReo6UMmSnCc5LvGPzWaORmWfX8ug2e67wpNS8-R9CBqsayE66AolDax4iXUXgwFTvXfDEC_Ya4Qasn72DZag8B185lQs-d8Pec1J9t7MsbOGQlpOa63CdSG701LcXbkHjaY" />
+            <div className="w-10 h-10 bg-primary rounded flex items-center justify-center">
+              <span className="material-symbols-outlined text-on-primary" style={{ fontVariationSettings: "'FILL' 1" }}>menu_book</span>
+            </div>
             <span className="font-headline-md text-headline-md font-bold text-primary">Kairos Bookshop</span>
           </div>
           <h1 className="font-headline-lg text-headline-lg font-bold text-on-surface">Create Account</h1>

@@ -36,13 +36,13 @@ export default function Header() {
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   return (
-    <header className="bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline sticky top-0 w-full z-50">
+    <header className="bg-white sticky top-0 w-full z-50">
       <nav className="flex justify-between items-center px-margin-desktop max-w-container-max mx-auto h-unit-xl">
         <a href="/" className="flex items-center gap-unit-md">
           <div className="w-10 h-10 bg-primary rounded flex items-center justify-center">
             <span className="material-symbols-outlined text-on-primary" style={{ fontVariationSettings: "'FILL' 1" }}>menu_book</span>
           </div>
-          <span className="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed hidden sm:inline">Kairos Bookshop</span>
+          <span className="font-headline-md text-headline-md font-bold text-primary hidden sm:inline">Kairos Bookshop</span>
         </a>
         <div className="hidden md:flex items-center gap-unit-lg">
           {navLinks.map((link) => {
@@ -52,8 +52,8 @@ export default function Header() {
                 key={link.href}
                 className={`font-label-md text-label-md transition-colors duration-200 ${
                   isActive
-                    ? "text-primary dark:text-primary-fixed border-b-2 border-primary dark:border-primary-fixed pb-1"
-                    : "text-on-surface-variant dark:text-on-tertiary-container hover:text-primary dark:hover:text-primary-fixed"
+                    ? "text-primary border-b-2 border-primary pb-1"
+                    : "text-primary hover:text-primary-fixed-dim font-semibold"
                 }`}
                 href={link.href}
               >
@@ -63,13 +63,13 @@ export default function Header() {
           })}
         </div>
         <div className="flex items-center gap-unit-md">
-          <a href="/cart" className="hidden md:flex p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors relative">
+          <a href="/cart" className="hidden md:flex p-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors relative">
             <span className="material-symbols-outlined">shopping_cart</span>
             {cartCount > 0 && <span className="absolute -top-0.5 -right-0.5 bg-secondary text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{cartCount}</span>}
           </a>
           {session ? (
             <div className="relative hidden md:block">
-              <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+              <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors">
                 <span className="material-symbols-outlined">account_circle</span>
               </button>
               {menuOpen && (
@@ -82,11 +82,11 @@ export default function Header() {
               )}
             </div>
           ) : (
-            <a href="/signin" className="hidden md:flex p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+            <a href="/signin" className="hidden md:flex p-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors">
               <span className="material-symbols-outlined">person</span>
             </a>
           )}
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors">
             <span className="material-symbols-outlined">{mobileOpen ? "close" : "menu"}</span>
           </button>
         </div>

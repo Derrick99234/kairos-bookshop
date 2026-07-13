@@ -9,10 +9,9 @@ export function middleware(req: NextRequest) {
 
   const isAccountPage = req.nextUrl.pathname.startsWith("/account");
   const isCheckoutPage = req.nextUrl.pathname.startsWith("/checkout");
-  const isAdminPage = req.nextUrl.pathname.startsWith("/admin");
   const isAdminApi = req.nextUrl.pathname.startsWith("/api/admin");
 
-  if ((isAccountPage || isCheckoutPage || isAdminPage || isAdminApi) && !token) {
+  if ((isAccountPage || isCheckoutPage || isAdminApi) && !token) {
     const signInUrl = new URL("/signin", req.url);
     signInUrl.searchParams.set("callbackUrl", req.nextUrl.pathname);
     return NextResponse.redirect(signInUrl);
@@ -22,5 +21,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/account/:path*", "/checkout", "/admin/:path*", "/api/admin/:path*"],
+  matcher: ["/account/:path*", "/checkout", "/api/admin/:path*"],
 };

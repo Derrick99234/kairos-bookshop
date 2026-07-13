@@ -10,11 +10,11 @@ const navLinks = [
   { label: "Orders", href: "/admin/orders", icon: "shopping_cart", divider: false },
   { label: "Customers", href: "/admin/customers", icon: "group", divider: false },
   { label: "Categories", href: "/admin/categories", icon: "category", divider: false },
-  { label: "", href: "", icon: "", divider: true },
+  { label: "divider-1", href: "", icon: "", divider: true },
   { label: "Blog", href: "/admin/blog", icon: "article", divider: false },
   { label: "Contact", href: "/admin/contact", icon: "mail", divider: false },
   { label: "Newsletter", href: "/admin/newsletter", icon: "campaign", divider: false },
-  { label: "", href: "", icon: "", divider: true },
+  { label: "divider-2", href: "", icon: "", divider: true },
   { label: "Settings", href: "/admin/settings", icon: "settings", divider: false },
 ];
 

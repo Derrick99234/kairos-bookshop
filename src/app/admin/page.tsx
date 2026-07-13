@@ -43,6 +43,7 @@ const statusBadge: Record<string, string> = {
 export default function AdminDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showAllCats, setShowAllCats] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin")
@@ -138,7 +139,7 @@ export default function AdminDashboard() {
               <p className="text-sm text-on-surface-variant">No categories yet</p>
             ) : (
               <div className="space-y-4">
-                {data.categories.map((cat) => (
+                {(showAllCats ? data.categories : data.categories.slice(0, 8)).map((cat) => (
                   <div key={cat.name}>
                     <div className="flex justify-between mb-1">
                       <span className="font-label-md text-label-md text-on-surface-variant">{cat.name}</span>
@@ -149,6 +150,11 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 ))}
+                {data.categories.length > 8 && (
+                  <button onClick={() => setShowAllCats(!showAllCats)} className="w-full text-center text-primary font-label-md text-label-md py-2 hover:underline">
+                    {showAllCats ? "Show Less" : `View All (${data.categories.length})`}
+                  </button>
+                )}
               </div>
             )}
           </div>

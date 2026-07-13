@@ -44,8 +44,6 @@ export default function AdminLogin() {
               <span className="material-symbols-outlined text-on-primary-container text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>menu_book</span>
             </div>
             <h1 className="font-headline-xl text-headline-lg text-primary">Kairos Admin</h1>
-            <p className="font-label-md text-label-md text-outline uppercase tracking-wider mt-1">Admin Portal</p>
-            <p className="text-sm text-on-surface-variant mt-3 max-w-xs mx-auto">Secure gateway for Kairos Bookshop stewardship and catalog management.</p>
           </div>
 
           <div className="flex items-center justify-center gap-2 mb-unit-lg text-xs text-on-surface-variant bg-surface-container-low py-2 px-4 rounded-lg">
@@ -61,7 +59,7 @@ export default function AdminLogin() {
               <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Email Address</label>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">mail</span>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full h-10 pl-9 pr-3 bg-surface-container-low border border-outline-variant rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none" placeholder="admin@kairos.com" required />
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full h-10 pl-9 pr-3 bg-surface-container-low border border-outline-variant rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none" placeholder="admin@example.com" required />
               </div>
             </div>
 
