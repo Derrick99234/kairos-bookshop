@@ -260,8 +260,8 @@ export default function Home() {
           <div className="flex flex-col gap-unit-md">
             <span className="text-secondary font-label-md tracking-widest uppercase">The Author</span>
             <h2 className="font-headline-lg text-headline-lg text-primary">Voices of Revelation</h2>
-            <p className="font-body-lg text-on-surface-variant leading-relaxed">Kairos Bookshop features the profound literary works of Dr. Isaiah Macwealth, whose ministry has impacted millions globally. Each book is crafted with a meticulous blend of biblical accuracy and practical application.</p>
-            <p className="font-body-md text-on-surface-variant italic border-l-4 border-secondary pl-unit-md py-2">&ldquo;My mission is to deliver the word in its purity, ensuring that every believer is equipped with the wisdom needed to dominate in their sphere of influence.&rdquo; — Dr. Isaiah Macwealth</p>
+            <p className="font-body-lg text-on-surface-variant leading-relaxed">Dr. Isaiah Macwealth, also known as Isaiah Wealth, is a lover of Jesus, a renowned author, philanthropist, and Senior Pastor of Gospel Pillars Intl. Churches worldwide. He is also the founder of the OneSound Revival Fellowship which runs a TV house, a Bible College, and Charity foundation.</p>
+            <p className="font-body-md text-on-surface-variant italic border-l-4 border-secondary pl-unit-md py-2">&ldquo;Kairos Bookshop features the profound literary works of Dr. Isaiah Macwealth, whose ministry has impacted millions globally. Each book is crafted with a meticulous blend of biblical accuracy and practical application.&rdquo; — Dr. Isaiah Macwealth</p>
             <Link href="/books" className="bg-primary text-white font-label-md py-4 px-unit-lg rounded-lg self-start hover:shadow-lg transition-all mt-unit-sm">Browse Books</Link>
           </div>
         </div>

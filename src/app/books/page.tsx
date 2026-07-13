@@ -100,7 +100,7 @@ function ShopAllBooks() {
   }
 
   return (
-    <main className="flex-grow pt-32 pb-unit-xl">
+    <main className="flex-grow pt-16 pb-unit-xl">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-unit-lg">
           <div>

@@ -1,12 +1,13 @@
 import NewsletterForm from "@/components/NewsletterForm";
+import Link from "next/link";
 
 export default function About() {
   return (
     <>
 
-      <main className="pt-unit-xl">
+      <main className="">
         {/* Hero Section */}
-        <section className="hero-mesh text-white py-24 md:py-32 overflow-hidden relative">
+        <section className="hero-mesh text-white pb-24 md:py-16 overflow-hidden relative">
           <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop relative z-10">
             <div className="max-w-2xl">
               <span className="font-label-md text-label-md uppercase tracking-widest text-primary-fixed/80 mb-4 block">Our Heritage</span>
@@ -34,10 +35,10 @@ export default function About() {
                     By fostering spiritual maturity and providing deep theological clarity, we empower believers to live out their divine purpose with conviction and stewardship.
                   </p>
                   <div className="flex gap-4 pt-4">
-                    <button className="bg-primary text-white px-6 py-3 font-label-md rounded-lg hover:opacity-90 transition-all flex items-center gap-2">
+                    <Link href="/books" className="bg-primary text-white px-6 py-3 font-label-md rounded-lg hover:opacity-90 transition-all flex items-center gap-2">
                       Explore Publications
                       <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -79,7 +80,7 @@ export default function About() {
                 <div className="relative">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full -mr-12 -mt-12 z-0"></div>
                   <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/10 rounded-full -ml-8 -mb-8 z-0"></div>
-                  <img className="relative z-10 rounded-lg shadow-2xl border-4 border-white object-cover aspect-[3/4] w-full" data-alt="A dignified, professional portrait of Dr. Isaiah Wealth in a corporate but welcoming pose. He is wearing a tailored navy suit against a soft, out-of-focus background of a theological library. The lighting is warm and directional, highlighting a sense of wisdom and authoritative leadership. The overall tone is high-fidelity, premium, and spiritual." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvRR1gw8JWcgvUu2KCnQarDM3Qh0sAn0TrEhVMqGWAXAKASRChAIwIed5cJVZlZ9vDmEuZRqdeVJryFo8TQkV5ZoDvAUBaKvIa--x_8LM2DQn4TlfUV8W4EmFYCjcDbJQE2jqNX7dBklXp9teL03M2jheH6kp4byxQo328AsC-Yxs_0QKILl4x1wTVmJCiFTr2G12gHg9qH3hvcLw_FPHsXeJGY1WXzWP7FxE8iLvhlu2Q7eQfK-C_e0c4XUwx9mjhB4tqTaviMUj7j1U" />
+                  <img alt="Dr. Isaiah Macwealth" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-wa0buzS7xgoyHwvoJDEGPsfLL6L0n6ZswGrblmdyTerqkt4mHhN4BTKu3fu0MRT2J3fA2oH0WWDD5sSf3Jc6tmquP3ynaOfQMJIF_-oAeBV-lMtieXeAtnzCv91zComzGOuj35Touews4tVvsM9wczU4xjm-o5bDhf6Nw9yJv0K9tNNMDdCOTfP0zhViYzQN8_ltSqBgdDwyAmAfIbQ81cGiQ6Kb3jBy4_V2ELgvGAszfqP8jBWq3wTjc5fROaJ3HYhsS8-O5Ua0gzQ" />
                 </div>
               </div>
               <div className="w-full md:w-7/12">
