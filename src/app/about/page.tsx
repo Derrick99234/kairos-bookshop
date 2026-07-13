@@ -83,20 +83,20 @@ export default function About() {
                 </div>
               </div>
               <div className="w-full md:w-7/12">
-                <h2 className="font-headline-lg text-headline-lg text-on-surface mb-6">About Dr. Isaiah Wealth</h2>
+                <h2 className="font-headline-lg text-headline-lg text-on-surface mb-6">About Dr. Isaiah Macwealth</h2>
                 <div className="prose prose-blue max-w-none space-y-6">
                   <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-                    Dr. Isaiah Wealth is the founder and presiding Bishop of Gospel Pillars Ministry. A visionary leader with a profound mandate to reveal the person of Jesus to the world, he has dedicated over two decades to the ministry of the Word and the Spirit.
+                    Dr. Isaiah Macwealth, also known as Isaiah Wealth, is a lover of Jesus, a renowned author, philanthropist, and Senior Pastor of Gospel Pillars Intl. Churches worldwide. He is also the founder of the OneSound Revival Fellowship which runs a TV house, a Bible College, and Charity foundation.
                   </p>
                   <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-                    As a prolific author of hundreds of titles, his writings cover diverse areas of the Christian faith including theology, prophecy, finances, and character development. His literary works are celebrated globally for their clarity, spiritual depth, and transformative power.
+                    On November 11th, 2023, Dr. Macwealth launched his ministry headquarters, the Ark of Light for all Nations, which has become a Gospel hotspot and an acclaimed mega church in Ikeja area of Lagos, hosting thousands of worshippers every week and housing a Food and Emergency Bank, known as the Ark Food Bank, a food sanctuary and an emergency response centre in Lagos and across West and Southern Africa with free food, clothing, and emergency supplies.
                   </p>
-                  <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed italic">
-                    &ldquo;Through these pages, my prayer is that you encounter the same fire that has consumed my life for the sake of the Kingdom.&rdquo;
+                  <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                    Called a prophet of God, his daily aim is to seek alignment with Heaven to deliver revelatory teachings, prophecies and exhortations right from the heart of the Father to people, nations, tongues, and kings as seen in Revelation 10:11.
                   </p>
                   <div className="flex items-center gap-4 pt-4">
                     <div className="h-px bg-outline-variant flex-grow"></div>
-                    <span className="font-label-md text-label-md text-primary">Founder, Gospel Pillars Ministry</span>
+                    <span className="font-label-md text-label-md text-primary">Senior Pastor, Gospel Pillars Intl. Churches</span>
                   </div>
                 </div>
               </div>

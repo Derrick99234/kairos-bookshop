@@ -121,7 +121,7 @@ export default function Home() {
           <div className="flex flex-col gap-unit-sm">
             <span className="text-on-primary-container font-label-md uppercase tracking-[0.2em] bg-white/10 self-center px-4 py-1.5 rounded-full border border-white/20">Spiritual Wisdom Library</span>
             <h1 className="font-headline-xl text-4xl md:text-6xl text-white leading-tight">Find Your Next <br /><span className="text-secondary-fixed">Transformation</span></h1>
-            <p className="font-body-lg text-lg md:text-xl text-white/80 max-w-2xl mx-auto">Search hundreds of curated spiritual titles, theological insights, and life-changing devotionals by Dr. Isaiah Macwealth designed to steward your divine purpose.</p>
+            <p className="font-body-lg text-lg md:text-xl text-white/80 max-w-2xl mx-auto">Our carefully curated selection of books, primarily authored by Dr. Isaiah Macwealth, speaks to the heart, addressing both spiritual and everyday challenges with biblical wisdom and practical insight</p>
           </div>
             <div className="w-full max-w-2xl relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-secondary to-primary-fixed-dim rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000" />
