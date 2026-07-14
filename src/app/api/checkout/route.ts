@@ -40,11 +40,14 @@ export async function POST(req: Request) {
       shippingId = address.id;
     }
 
-    const subtotal = cart.items.reduce(
-      (sum, item) => sum + item.variant.price * item.quantity,
-      0
-    );
-    const shipping = subtotal >= 50000 ? 0 : 2000;
+    const hardSubtotal = cart.items
+      .filter((item) => item.variant.format === "HARDCOPY")
+      .reduce((sum, item) => sum + item.variant.price * item.quantity, 0);
+    const softSubtotal = cart.items
+      .filter((item) => item.variant.format !== "HARDCOPY")
+      .reduce((sum, item) => sum + item.variant.price * item.quantity, 0);
+    const subtotal = hardSubtotal + softSubtotal;
+    const shipping = hardSubtotal >= 50000 ? 0 : 2000;
     const total = subtotal + shipping;
     const orderNumber = generateOrderNumber();
 
@@ -66,6 +69,7 @@ export async function POST(req: Request) {
             price: item.variant.price,
             quantity: item.quantity,
             format: item.variant.format,
+            fulfillmentStatus: "PENDING",
           })),
         },
       },

@@ -7,6 +7,8 @@ import Link from "next/link";
 
 interface OrderItem {
   id: string; title: string; price: number; quantity: number; format: string;
+  fulfillmentStatus: string;
+  book: { slug: string };
 }
 
 interface ShippingAddress {
@@ -93,15 +95,29 @@ export default function OrderDetailPage() {
             <h2 className="font-headline-md text-headline-md text-on-surface">Items</h2>
           </div>
           <div className="divide-y divide-outline-variant">
-            {order.items.map((item) => (
-              <div key={item.id} className="px-unit-lg py-unit-md flex items-center justify-between">
-                <div>
-                  <p className="font-label-md">{item.title}</p>
-                  <p className="text-xs text-on-surface-variant">Qty: {item.quantity} × ₦{item.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} — {item.format}</p>
+              {order.items.map((item) => (
+                <div key={item.id} className="px-unit-lg py-unit-md flex items-center justify-between">
+                  <div>
+                    <p className="font-label-md">{item.title}</p>
+                    <p className="text-xs text-on-surface-variant">Qty: {item.quantity} × ₦{item.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} — {item.format}</p>
+                    <p className="text-xs mt-1">
+                      {item.fulfillmentStatus === "DOWNLOADABLE" ? (
+                        <span className="text-green-600 font-medium">Ready to read</span>
+                      ) : item.fulfillmentStatus === "SHIPPING" ? (
+                        <span className="text-blue-600 font-medium">Shipping in progress</span>
+                      ) : (
+                        <span className="text-on-surface-variant">{item.fulfillmentStatus}</span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">₦{(item.price * item.quantity).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    {item.fulfillmentStatus === "DOWNLOADABLE" && (
+                      <Link href={`/books/${item.book.slug}`} className="bg-primary text-white text-xs px-3 py-1.5 rounded-lg hover:bg-primary-fixed-dim transition-colors">View Book</Link>
+                    )}
+                  </div>
                 </div>
-                <span className="font-medium">₦{(item.price * item.quantity).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-              </div>
-            ))}
+              ))}
           </div>
           <div className="px-unit-lg py-unit-md border-t border-outline-variant space-y-1 text-sm">
             <div className="flex justify-between"><span className="text-on-surface-variant">Subtotal</span><span>₦{order.subtotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>

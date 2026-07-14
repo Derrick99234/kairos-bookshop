@@ -28,13 +28,25 @@ export async function POST(req: Request) {
 
         const items = await prisma.orderItem.findMany({
           where: { orderId: order.id },
-          select: { variantId: true, quantity: true },
+          select: { id: true, variantId: true, quantity: true, format: true },
         });
+
         for (const item of items) {
-          if (item.variantId) {
-            await prisma.bookVariant.update({
-              where: { id: item.variantId },
-              data: { stock: { decrement: item.quantity } },
+          if (item.format === "HARDCOPY") {
+            if (item.variantId) {
+              await prisma.bookVariant.update({
+                where: { id: item.variantId },
+                data: { stock: { decrement: item.quantity } },
+              });
+            }
+            await prisma.orderItem.update({
+              where: { id: item.id },
+              data: { fulfillmentStatus: "SHIPPING" },
+            });
+          } else {
+            await prisma.orderItem.update({
+              where: { id: item.id },
+              data: { fulfillmentStatus: "DOWNLOADABLE" },
             });
           }
         }

@@ -116,9 +116,10 @@ model BookVariant {
   comparePrice Float    @default(0)
   stock        Int      @default(0)
   sku          String   @default("")
+  downloadUrl  String   @default("")
 
-  book      Book       @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  cartItems CartItem[]
+  book       Book       @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  cartItems  CartItem[]
   orderItems OrderItem[]
 
   @@unique([bookId, format])
@@ -168,7 +169,8 @@ model OrderItem {
   title     String
   price     Float
   quantity  Int
-  format    String @default("HARDCOPY")
+  format            String @default("HARDCOPY")
+  fulfillmentStatus String @default("PENDING")
 
   order   Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
   book    Book        @relation(fields: [bookId], references: [id])

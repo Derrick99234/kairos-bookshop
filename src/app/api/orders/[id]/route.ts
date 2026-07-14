@@ -12,7 +12,7 @@ export async function GET(
   const { id } = await params;
   const order = await prisma.order.findUnique({
     where: { id },
-    include: { items: true, shippingAddress: true },
+    include: { items: { include: { book: { select: { slug: true } } } }, shippingAddress: true },
   });
 
   const isAdmin = (session.user as { role?: string }).role === "ADMIN";

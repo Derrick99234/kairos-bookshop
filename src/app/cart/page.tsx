@@ -64,8 +64,10 @@ export default function CartPage() {
     );
   }
 
-  const subtotal = cart?.items.reduce((sum, i) => sum + i.variant.price * i.quantity, 0) || 0;
-  const shipping = subtotal >= 50000 ? 0 : 2000;
+  const hardSubtotal = cart?.items.filter((i) => i.variant.format === "HARDCOPY").reduce((sum, i) => sum + i.variant.price * i.quantity, 0) || 0;
+  const softSubtotal = cart?.items.filter((i) => i.variant.format !== "HARDCOPY").reduce((sum, i) => sum + i.variant.price * i.quantity, 0) || 0;
+  const subtotal = hardSubtotal + softSubtotal;
+  const shipping = hardSubtotal >= 50000 ? 0 : 2000;
   const total = subtotal + shipping;
 
   return (
@@ -110,7 +112,8 @@ export default function CartPage() {
             <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-md h-fit">
               <h3 className="font-headline-md text-headline-md text-on-surface mb-unit-md">Order Summary</h3>
               <div className="space-y-3 text-sm">
-                <div className="flex justify-between"><span className="text-on-surface-variant">Subtotal</span><span>₦{subtotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
+                <div className="flex justify-between"><span className="text-on-surface-variant">Subtotal (Hardcopy)</span><span>₦{hardSubtotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
+                {softSubtotal > 0 && <div className="flex justify-between"><span className="text-on-surface-variant">Subtotal (Softcopy)</span><span>₦{softSubtotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>}
                 <div className="flex justify-between"><span className="text-on-surface-variant">Shipping</span><span>{shipping === 0 ? "Free" : `₦${shipping.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</span></div>
                 <div className="border-t border-outline-variant pt-3 flex justify-between font-bold text-lg"><span>Total</span><span>₦{total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
               </div>

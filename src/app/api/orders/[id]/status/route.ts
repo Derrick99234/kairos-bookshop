@@ -31,10 +31,10 @@ export async function PUT(
   if (status === "CANCELLED" && order.status !== "CANCELLED") {
     const items = await prisma.orderItem.findMany({
       where: { orderId: order.id },
-      select: { variantId: true, quantity: true },
+      select: { variantId: true, quantity: true, format: true },
     });
     for (const item of items) {
-      if (item.variantId) {
+      if (item.format === "HARDCOPY" && item.variantId) {
         await prisma.bookVariant.update({
           where: { id: item.variantId },
           data: { stock: { increment: item.quantity } },
