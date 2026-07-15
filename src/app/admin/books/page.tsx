@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import ImageUpload from "@/components/ImageUpload";
 
 const FORMATS = ["HARDCOPY", "SOFTCOPY", "AUDIO_BOOK"];
 
 interface Category { id: string; name: string; slug: string; }
 interface Variant {
-  id?: string; format: string; price: number; comparePrice: number; stock: number; sku: string;
+  id?: string; format: string; price: number; comparePrice: number; stock: number; sku: string; downloadUrl?: string;
 }
 interface Book {
   id: string; title: string; slug: string; author: string; description: string;
@@ -90,7 +91,7 @@ export default function AdminBooks() {
   function openCreate() {
     setEditing(null);
     setForm({ title: "", slug: "", author: "", description: "", isbn: "", pages: 0, categoryId: "", imageUrl: "", images: "[]", featured: false, published: true });
-    setVariants([{ format: "HARDCOPY", price: 0, comparePrice: 0, stock: 0, sku: "" }]);
+    setVariants([{ format: "HARDCOPY", price: 0, comparePrice: 0, stock: 0, sku: "", downloadUrl: "" }]);
     setShowForm(true);
   }
 
@@ -344,13 +345,7 @@ export default function AdminBooks() {
                   <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full h-20 px-unit-sm py-unit-xs bg-surface-container-low border border-outline-variant rounded-lg text-sm resize-none" />
                 </div>
                 <div className="col-span-2">
-                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Image URL</label>
-                  {form.imageUrl && (
-                    <div className="mb-2 w-20 h-28 rounded-lg overflow-hidden border border-outline-variant">
-                      <img src={form.imageUrl} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                    </div>
-                  )}
-                  <input value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" />
+                  <ImageUpload currentUrl={form.imageUrl} onUpload={(url) => setForm({ ...form, imageUrl: url })} label="Book Cover Image" />
                 </div>
                 <div className="col-span-2">
                   <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Additional Images (JSON array)</label>
@@ -406,6 +401,16 @@ export default function AdminBooks() {
                           <input value={v.sku} onChange={(e) => updateVariant(idx, "sku", e.target.value)} className="w-full h-8 px-2 bg-surface border border-outline-variant rounded text-sm" />
                         </div>
                       </div>
+                      {v.format === "SOFTCOPY" && (
+                        <div className="mt-2">
+                          <ImageUpload
+                            currentUrl={v.downloadUrl}
+                            onUpload={(url) => updateVariant(idx, "downloadUrl", url)}
+                            accept=".pdf,application/pdf"
+                            label="PDF File"
+                          />
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

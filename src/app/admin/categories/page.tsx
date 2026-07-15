@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import ImageUpload from "@/components/ImageUpload";
 
 interface Category {
   id: string; name: string; slug: string; description: string; imageUrl: string;
@@ -199,13 +200,7 @@ export default function AdminCategories() {
                 <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full h-20 px-unit-sm py-unit-xs bg-surface-container-low border border-outline-variant rounded-lg text-sm resize-none" />
               </div>
               <div>
-                <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Image URL</label>
-                {form.imageUrl && (
-                  <div className="mb-2 w-16 h-16 rounded-lg overflow-hidden border border-outline-variant">
-                    <img src={form.imageUrl} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                  </div>
-                )}
-                <input value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" placeholder="https://..." />
+                <ImageUpload currentUrl={form.imageUrl} onUpload={(url) => setForm({ ...form, imageUrl: url })} label="Category Image" />
               </div>
               <div className="flex items-center gap-unit-md pt-unit-sm">
                 <button type="submit" className="bg-primary text-white px-unit-md py-unit-sm rounded-lg font-label-md text-label-md hover:bg-primary-fixed-dim transition-all">{editing ? "Update" : "Create"}</button>

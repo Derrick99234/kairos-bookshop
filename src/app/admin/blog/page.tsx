@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import ImageUpload from "@/components/ImageUpload";
 
 interface BlogPost {
   id: string; title: string; slug: string; excerpt: string;
@@ -212,13 +213,7 @@ export default function AdminBlog() {
                   <textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} className="w-full h-40 px-unit-sm py-unit-xs bg-surface-container-low border border-outline-variant rounded-lg text-sm resize-none font-mono text-xs" />
                 </div>
                 <div className="col-span-2">
-                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Image URL</label>
-                  {form.imageUrl && (
-                    <div className="mb-2 w-32 h-20 rounded-lg overflow-hidden border border-outline-variant">
-                      <img src={form.imageUrl} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                    </div>
-                  )}
-                  <input value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" />
+                  <ImageUpload currentUrl={form.imageUrl} onUpload={(url) => setForm({ ...form, imageUrl: url })} label="Blog Image" />
                 </div>
                 <div>
                   <label className="flex items-center gap-2 cursor-pointer">

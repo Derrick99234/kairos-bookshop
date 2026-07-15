@@ -38,6 +38,7 @@ export const variantSchema = z.object({
   comparePrice: z.number().optional().default(0),
   stock: z.number().int().optional().default(0),
   sku: z.string().optional().default(""),
+  downloadUrl: z.string().optional().default(""),
 });
 
 export const bookWithVariantsSchema = bookSchema.extend({
