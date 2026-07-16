@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useCurrency } from "@/lib/useCurrency";
+import { formatPrice, toCurrencyPrice } from "@/lib/price";
 
 interface Order {
   id: string; orderNumber: string; status: string; total: number; createdAt: string;
@@ -15,6 +17,7 @@ export default function AccountPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const { currency, usdRate } = useCurrency();
 
   useEffect(() => {
     if (status === "unauthenticated") { router.push("/signin"); return; }
@@ -90,7 +93,7 @@ export default function AccountPage() {
                     <p className="text-sm text-on-surface-variant">{order.items.map((i) => `${i.title} x${i.quantity}`).join(", ")}</p>
                     <div className="flex items-center justify-between mt-unit-sm">
                       <span className="text-xs text-on-surface-variant">{new Date(order.createdAt).toLocaleDateString()}</span>
-                      <span className="font-bold text-primary">₦{order.total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      <span className="font-bold text-primary">{formatPrice(toCurrencyPrice(order.total, 0, currency, usdRate), currency)}</span>
                     </div>
                   </Link>
                 ))}

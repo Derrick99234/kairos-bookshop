@@ -4,9 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useCurrency } from "@/lib/useCurrency";
+import { useCartCount } from "@/lib/useCartCount";
+import { formatPrice, toCurrencyPrice } from "@/lib/price";
 
 interface Variant {
-  id: string; format: string; price: number; comparePrice: number; stock: number;
+  id: string; format: string; price: number; comparePrice: number; priceUsd: number; comparePriceUsd: number; stock: number;
 }
 interface Book {
   id: string; title: string; slug: string; author: string;
@@ -36,6 +39,8 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 export default function Home() {
   const { data: session } = useSession();
+  const { currency, usdRate } = useCurrency();
+  const { optimisticAdd } = useCartCount();
   const router = useRouter();
   const [featured, setFeatured] = useState<Book[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -59,13 +64,7 @@ export default function Home() {
     const variant = getBestVariant(book);
     if (!variant) return;
     setAddingId(book.id);
-    try {
-      await fetch("/api/cart/items", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ variantId: variant.id, quantity: 1 }),
-      });
-    } catch { /* ignore */ }
+    optimisticAdd(variant.id);
     setTimeout(() => setAddingId(null), 1500);
   }
 
@@ -147,7 +146,7 @@ export default function Home() {
                           )}
                           <div className="text-left min-w-0">
                             <p className="font-label-md text-label-md text-on-surface truncate">{book.title}</p>
-                            <p className="text-xs text-on-surface-variant truncate">{book.author} — {best ? `₦${best.price.toLocaleString()}` : ""}</p>
+                            <p className="text-xs text-on-surface-variant truncate">{book.author} — {best ? formatPrice(toCurrencyPrice(best.price, best.priceUsd || 0, currency, usdRate), currency) : ""}</p>
                           </div>
                         </Link>
                       );
@@ -209,7 +208,7 @@ export default function Home() {
                     <p className="font-label-md text-label-md text-on-surface-variant uppercase">{book.author}</p>
                     <div className="mt-auto flex items-center justify-between pt-unit-sm">
                       <span className="font-bold text-primary">
-                        {best ? `₦${best.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ""}
+                        {best ? formatPrice(toCurrencyPrice(best.price, best.priceUsd || 0, currency, usdRate), currency) : ""}
                       </span>
                       <button onClick={(e) => { e.preventDefault(); addToCart(book); }} className="p-2 bg-primary/5 text-primary rounded-full hover:bg-primary hover:text-white transition-all">
                         <span className="material-symbols-outlined text-sm">{addingId === book.id ? "check" : "shopping_cart"}</span>

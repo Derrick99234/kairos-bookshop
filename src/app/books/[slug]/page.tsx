@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useCurrency } from "@/lib/useCurrency";
+import { useCartCount } from "@/lib/useCartCount";
+import { formatPrice, toCurrencyPrice, toCurrencyCompare } from "@/lib/price";
 
 interface Review {
   id: string; rating: number; comment: string; createdAt: string;
@@ -11,7 +14,7 @@ interface Review {
 }
 
 interface Variant {
-  id: string; format: string; price: number; comparePrice: number; stock: number; sku: string;
+  id: string; format: string; price: number; comparePrice: number; priceUsd: number; comparePriceUsd: number; stock: number; sku: string;
 }
 
 interface Book {
@@ -51,6 +54,8 @@ export default function BookDetail() {
   const [reviewError, setReviewError] = useState("");
   const [reviewDone, setReviewDone] = useState(false);
   const [descExpanded, setDescExpanded] = useState(false);
+  const { currency, usdRate } = useCurrency();
+  const { optimisticAdd } = useCartCount();
 
   useEffect(() => {
     if (!params?.slug) return;
@@ -76,15 +81,9 @@ export default function BookDetail() {
   async function addToCart() {
     if (!book || !selectedVariant) return;
     if (!session) { router.push("/signin"); return; }
-    try {
-      await fetch("/api/cart/items", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ variantId: selectedVariant.id, quantity }),
-      });
-      setAdded(true);
-      setTimeout(() => setAdded(false), 2000);
-    } catch { /* ignore */ }
+    optimisticAdd(selectedVariant.id, quantity);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
   }
 
   async function toggleWishlist() {
@@ -179,11 +178,11 @@ export default function BookDetail() {
 
             <div className="flex items-center gap-4">
               <span className="font-headline-lg text-headline-lg text-primary">
-                ₦{selectedVariant.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {formatPrice(toCurrencyPrice(selectedVariant.price, selectedVariant.priceUsd || 0, currency, usdRate), currency)}
               </span>
               {selectedVariant.comparePrice > selectedVariant.price && (
                 <span className="text-lg text-on-surface-variant line-through">
-                  ₦{selectedVariant.comparePrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {formatPrice(toCurrencyCompare(selectedVariant.comparePrice, selectedVariant.comparePriceUsd || 0, currency, usdRate), currency)}
                 </span>
               )}
             </div>
@@ -204,7 +203,7 @@ export default function BookDetail() {
                     <span className="material-symbols-outlined">{FORMAT_ICONS[v.format] || "book"}</span>
                     <div>
                       <p className="text-sm font-bold">{FORMAT_LABELS[v.format] || v.format}</p>
-                      <p className="text-xs">₦{v.price.toLocaleString()}{v.stock === 0 ? " — Out of stock" : ""}</p>
+                      <p className="text-xs">{formatPrice(toCurrencyPrice(v.price, v.priceUsd || 0, currency, usdRate), currency)}{v.stock === 0 ? " — Out of stock" : ""}</p>
                     </div>
                   </button>
                 );

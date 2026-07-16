@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useCurrency } from "@/lib/useCurrency";
+import { formatPrice, toCurrencyPrice } from "@/lib/price";
 
 interface WishlistVariant {
   id: string; price: number;
@@ -22,6 +24,7 @@ interface WishlistItem {
 export default function WishlistPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { currency, usdRate } = useCurrency();
   const [items, setItems] = useState<WishlistItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -111,8 +114,8 @@ export default function WishlistPage() {
                           const max = Math.max(...prices);
                           if (prices.length === 0) return "—";
                           return min === max
-                            ? `₦${min.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                            : `₦${min.toLocaleString()} – ₦${max.toLocaleString()}`;
+                            ? formatPrice(toCurrencyPrice(min, 0, currency, usdRate), currency)
+                            : `${formatPrice(toCurrencyPrice(min, 0, currency, usdRate), currency)} – ${formatPrice(toCurrencyPrice(max, 0, currency, usdRate), currency)}`;
                         })()}</span>
                         <div className="flex gap-1">
                           <button onClick={() => removeFromWishlist(item.bookId)} className="p-2 text-secondary hover:bg-secondary/5 rounded-full transition-all">

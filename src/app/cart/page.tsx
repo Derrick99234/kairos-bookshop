@@ -4,9 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useCurrency } from "@/lib/useCurrency";
+import { useCartCount } from "@/lib/useCartCount";
+import { formatPrice, toCurrencyPrice } from "@/lib/price";
 
 interface Variant {
-  id: string; format: string; price: number; stock: number;
+  id: string; format: string; price: number; priceUsd: number; stock: number;
   book: { id: string; title: string; slug: string; imageUrl: string; author: string };
 }
 
@@ -28,6 +31,8 @@ export default function CartPage() {
   const router = useRouter();
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
+  const { currency, usdRate } = useCurrency();
+  const { optimisticRemove } = useCartCount();
 
   useEffect(() => {
     if (status === "unauthenticated") { router.push("/signin"); return; }
@@ -42,18 +47,29 @@ export default function CartPage() {
   async function updateQuantity(itemId: string, delta: number) {
     const item = cart?.items.find((i) => i.id === itemId);
     if (!item) return;
+    const prevQty = item.quantity;
     const qty = Math.max(1, Math.min(item.variant.stock, item.quantity + delta));
-    await fetch(`/api/cart/items/${itemId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ quantity: qty }),
-    });
+    if (qty === prevQty) return;
     setCart((prev) => prev ? { ...prev, items: prev.items.map((i) => i.id === itemId ? { ...i, quantity: qty } : i) } : prev);
+    try {
+      const res = await fetch(`/api/cart/items/${itemId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quantity: qty }),
+      });
+      if (!res.ok) throw new Error();
+    } catch {
+      setCart((prev) => prev ? { ...prev, items: prev.items.map((i) => i.id === itemId ? { ...i, quantity: prevQty } : i) } : prev);
+    }
   }
 
   async function removeItem(itemId: string) {
-    await fetch(`/api/cart/items/${itemId}`, { method: "DELETE" });
+    const removed = cart?.items.find((i) => i.id === itemId);
+    if (!removed) return;
     setCart((prev) => prev ? { ...prev, items: prev.items.filter((i) => i.id !== itemId) } : prev);
+    optimisticRemove(itemId, removed.quantity, () => {
+      setCart((prev) => prev ? { ...prev, items: [...prev.items, removed] } : prev);
+    });
   }
 
   if (status === "loading" || loading) {
@@ -100,7 +116,7 @@ export default function CartPage() {
                         <button onClick={() => updateQuantity(item.id, 1)} className="w-8 h-8 flex items-center justify-center border border-outline-variant rounded-md text-sm hover:bg-surface-container">+</button>
                       </div>
                       <div className="flex items-center gap-unit-sm">
-                        <span className="font-bold text-primary">₦{(item.variant.price * item.quantity).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        <span className="font-bold text-primary">{formatPrice(toCurrencyPrice(item.variant.price, item.variant.priceUsd || 0, currency, usdRate) * item.quantity, currency)}</span>
                         <button onClick={() => removeItem(item.id)} className="text-secondary hover:text-secondary-fixed-dim text-sm"><span className="material-symbols-outlined text-sm">delete</span></button>
                       </div>
                     </div>
@@ -112,10 +128,10 @@ export default function CartPage() {
             <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-md h-fit">
               <h3 className="font-headline-md text-headline-md text-on-surface mb-unit-md">Order Summary</h3>
               <div className="space-y-3 text-sm">
-                <div className="flex justify-between"><span className="text-on-surface-variant">Subtotal (Hardcopy)</span><span>₦{hardSubtotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
-                {softSubtotal > 0 && <div className="flex justify-between"><span className="text-on-surface-variant">Subtotal (Softcopy)</span><span>₦{softSubtotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>}
-                <div className="flex justify-between"><span className="text-on-surface-variant">Shipping</span><span>{shipping === 0 ? "Free" : `₦${shipping.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</span></div>
-                <div className="border-t border-outline-variant pt-3 flex justify-between font-bold text-lg"><span>Total</span><span>₦{total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
+                <div className="flex justify-between"><span className="text-on-surface-variant">Subtotal (Hardcopy)</span><span>{formatPrice(toCurrencyPrice(hardSubtotal, 0, currency, usdRate), currency)}</span></div>
+                {softSubtotal > 0 && <div className="flex justify-between"><span className="text-on-surface-variant">Subtotal (Softcopy)</span><span>{formatPrice(toCurrencyPrice(softSubtotal, 0, currency, usdRate), currency)}</span></div>}
+                <div className="flex justify-between"><span className="text-on-surface-variant">Shipping</span><span>{shipping === 0 ? "Free" : formatPrice(toCurrencyPrice(shipping, 0, currency, usdRate), currency)}</span></div>
+                <div className="border-t border-outline-variant pt-3 flex justify-between font-bold text-lg"><span>Total</span><span>{formatPrice(toCurrencyPrice(total, 0, currency, usdRate), currency)}</span></div>
               </div>
               <button onClick={() => router.push("/checkout")} className="w-full bg-primary text-white font-label-md py-4 rounded-lg mt-unit-md hover:bg-primary-fixed-dim transition-all active:scale-95">Proceed to Checkout</button>
               <Link href="/books" className="w-full block text-center text-primary font-label-md py-3 mt-2 hover:underline">Continue Shopping</Link>

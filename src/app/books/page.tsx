@@ -4,9 +4,12 @@ import { Suspense, useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useCurrency } from "@/lib/useCurrency";
+import { useCartCount } from "@/lib/useCartCount";
+import { formatPrice, toCurrencyPrice, toCurrencyCompare } from "@/lib/price";
 
 interface Variant {
-  id: string; format: string; price: number; comparePrice: number; stock: number;
+  id: string; format: string; price: number; comparePrice: number; priceUsd: number; comparePriceUsd: number; stock: number;
 }
 interface Book {
   id: string; title: string; slug: string; author: string;
@@ -29,6 +32,8 @@ function ShopAllBooks() {
   const [total, setTotal] = useState(0);
   const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const { currency, usdRate } = useCurrency();
+  const { optimisticAdd } = useCartCount();
   const [addingId, setAddingId] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState("");
 
@@ -89,13 +94,7 @@ function ShopAllBooks() {
     const variant = getBestVariant(book);
     if (!variant) return;
     setAddingId(book.id);
-    try {
-      await fetch("/api/cart/items", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ variantId: variant.id, quantity: 1 }),
-      });
-    } catch { /* ignore */ }
+    optimisticAdd(variant.id);
     setTimeout(() => setAddingId(null), 1500);
   }
 
@@ -175,12 +174,11 @@ function ShopAllBooks() {
                     <p className="font-label-md text-label-md text-on-surface-variant uppercase mt-1">{book.author}</p>
                     <div className="mt-auto pt-unit-sm flex items-center justify-between">
                       <div className="flex flex-col">
-                        {hasSale && <span className="text-xs text-on-surface-variant line-through">₦{best!.comparePrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>}
+                        {hasSale && <span className="text-xs text-on-surface-variant line-through">{formatPrice(toCurrencyCompare(best!.comparePrice, best!.comparePriceUsd || 0, currency, usdRate), currency)}</span>}
                         <span className="font-headline-md text-headline-md text-primary">
                           {minPrice === maxPrice
-                            ? `₦${minPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                            : `₦${minPrice.toLocaleString()} – ₦${maxPrice.toLocaleString()}`
-                          }
+                            ? formatPrice(toCurrencyPrice(minPrice, 0, currency, usdRate), currency)
+                            : formatPrice(toCurrencyPrice(minPrice, 0, currency, usdRate), currency) + " \u2013 " + formatPrice(toCurrencyPrice(maxPrice, 0, currency, usdRate), currency)}
                         </span>
                       </div>
                       <button onClick={(e) => addToCart(e, book)} className="bg-primary text-white p-2 rounded-lg hover:opacity-90 active:scale-95 transition-all">

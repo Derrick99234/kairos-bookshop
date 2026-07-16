@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useCurrency } from "@/lib/useCurrency";
+import { formatPrice, toCurrencyPrice } from "@/lib/price";
 
 interface Variant {
-  id: string; format: string; price: number; stock: number;
+  id: string; format: string; price: number; priceUsd: number; stock: number;
   book: { id: string; title: string; slug: string; imageUrl: string; author: string };
 }
 
@@ -24,6 +26,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const { currency, usdRate } = useCurrency();
 
   const [street, setStreet] = useState("");
   const [city, setCity] = useState("");
@@ -97,7 +100,7 @@ export default function CheckoutPage() {
                 </div>
                 {error && <div className="text-sm text-secondary bg-red-50 border border-red-200 px-unit-sm py-unit-xs rounded-lg">{error}</div>}
                 <button type="submit" disabled={submitting} className="w-full bg-primary text-white font-label-md py-4 rounded-lg hover:bg-primary-fixed-dim transition-all active:scale-95 disabled:opacity-50">
-                  {submitting ? "Redirecting to Paystack..." : `Pay ₦${total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                  {submitting ? "Redirecting to Paystack..." : `Pay ${formatPrice(toCurrencyPrice(total, 0, currency, usdRate), currency)}`}
                 </button>
               </div>
             </form>
@@ -114,15 +117,15 @@ export default function CheckoutPage() {
                       <p className="text-sm font-medium truncate">{item.variant.book.title}</p>
                       <p className="text-xs text-on-surface-variant">{item.variant.format} × {item.quantity}</p>
                     </div>
-                    <span className="text-sm font-medium">₦{(item.variant.price * item.quantity).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <span className="text-sm font-medium">{formatPrice(toCurrencyPrice(item.variant.price, item.variant.priceUsd || 0, currency, usdRate) * item.quantity, currency)}</span>
                   </div>
                 ))}
               </div>
               <div className="space-y-2 text-sm mt-unit-md pt-unit-md border-t border-outline-variant">
-                <div className="flex justify-between"><span className="text-on-surface-variant">Subtotal (Hardcopy)</span><span>₦{hardSubtotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
-                {softSubtotal > 0 && <div className="flex justify-between"><span className="text-on-surface-variant">Subtotal (Softcopy)</span><span>₦{softSubtotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>}
-                <div className="flex justify-between"><span className="text-on-surface-variant">Shipping</span><span>{shipping === 0 ? "Free" : `₦${shipping.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</span></div>
-                <div className="border-t border-outline-variant pt-2 flex justify-between font-bold text-lg"><span>Total</span><span>₦{total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
+                <div className="flex justify-between"><span className="text-on-surface-variant">Subtotal (Hardcopy)</span><span>{formatPrice(toCurrencyPrice(hardSubtotal, 0, currency, usdRate), currency)}</span></div>
+                {softSubtotal > 0 && <div className="flex justify-between"><span className="text-on-surface-variant">Subtotal (Softcopy)</span><span>{formatPrice(toCurrencyPrice(softSubtotal, 0, currency, usdRate), currency)}</span></div>}
+                <div className="flex justify-between"><span className="text-on-surface-variant">Shipping</span><span>{shipping === 0 ? "Free" : formatPrice(toCurrencyPrice(shipping, 0, currency, usdRate), currency)}</span></div>
+                <div className="border-t border-outline-variant pt-2 flex justify-between font-bold text-lg"><span>Total</span><span>{formatPrice(toCurrencyPrice(total, 0, currency, usdRate), currency)}</span></div>
               </div>
             </div>
           </div>

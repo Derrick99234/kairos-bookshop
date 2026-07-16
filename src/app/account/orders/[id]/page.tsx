@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useCurrency } from "@/lib/useCurrency";
+import { formatPrice, toCurrencyPrice } from "@/lib/price";
 
 interface OrderItem {
   id: string; title: string; price: number; quantity: number; format: string;
@@ -29,6 +31,7 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
+  const { currency, usdRate } = useCurrency();
 
   useEffect(() => {
     if (authStatus === "unauthenticated") { router.push("/signin"); return; }
@@ -99,7 +102,7 @@ export default function OrderDetailPage() {
                 <div key={item.id} className="px-unit-lg py-unit-md flex items-center justify-between">
                   <div>
                     <p className="font-label-md">{item.title}</p>
-                    <p className="text-xs text-on-surface-variant">Qty: {item.quantity} × ₦{item.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} — {item.format}</p>
+                    <p className="text-xs text-on-surface-variant">Qty: {item.quantity} × {formatPrice(toCurrencyPrice(item.price, 0, currency, usdRate), currency)} — {item.format}</p>
                     <p className="text-xs mt-1">
                       {item.fulfillmentStatus === "DOWNLOADABLE" ? (
                         <span className="text-green-600 font-medium">Ready to read</span>
@@ -111,7 +114,7 @@ export default function OrderDetailPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">₦{(item.price * item.quantity).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <span className="font-medium">{formatPrice(toCurrencyPrice(item.price * item.quantity, 0, currency, usdRate), currency)}</span>
                     {item.fulfillmentStatus === "DOWNLOADABLE" && (
                       <Link href={`/books/${item.book.slug}`} className="bg-primary text-white text-xs px-3 py-1.5 rounded-lg hover:bg-primary-fixed-dim transition-colors">View Book</Link>
                     )}
@@ -120,9 +123,9 @@ export default function OrderDetailPage() {
               ))}
           </div>
           <div className="px-unit-lg py-unit-md border-t border-outline-variant space-y-1 text-sm">
-            <div className="flex justify-between"><span className="text-on-surface-variant">Subtotal</span><span>₦{order.subtotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
-            <div className="flex justify-between"><span className="text-on-surface-variant">Shipping</span><span>₦{order.shipping.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
-            <div className="flex justify-between font-bold text-lg pt-2 border-t border-outline-variant"><span>Total</span><span>₦{order.total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
+            <div className="flex justify-between"><span className="text-on-surface-variant">Subtotal</span><span>{formatPrice(toCurrencyPrice(order.subtotal, 0, currency, usdRate), currency)}</span></div>
+            <div className="flex justify-between"><span className="text-on-surface-variant">Shipping</span><span>{formatPrice(toCurrencyPrice(order.shipping, 0, currency, usdRate), currency)}</span></div>
+            <div className="flex justify-between font-bold text-lg pt-2 border-t border-outline-variant"><span>Total</span><span>{formatPrice(toCurrencyPrice(order.total, 0, currency, usdRate), currency)}</span></div>
             <div className="flex justify-between text-xs pt-2"><span className="text-on-surface-variant">Payment</span><span className={order.paymentStatus === "PAID" ? "text-green-600" : "text-orange-600"}>{order.paymentStatus}</span></div>
           </div>
         </div>

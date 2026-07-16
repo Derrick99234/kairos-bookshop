@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useCurrency } from "@/lib/useCurrency";
+import { formatPrice, toCurrencyPrice } from "@/lib/price";
 
 interface Order {
   id: string; orderNumber: string; status: string; total: number; createdAt: string;
@@ -15,6 +17,7 @@ export default function AccountOrdersPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const { currency, usdRate } = useCurrency();
 
   useEffect(() => {
     if (status === "unauthenticated") { router.push("/signin"); return; }
@@ -93,7 +96,7 @@ export default function AccountOrdersPage() {
                         <tr key={order.id} onClick={() => router.push(`/account/orders/${order.id}`)} className="hover:bg-surface-container-low/50 transition-colors cursor-pointer">
                           <td className="px-4 py-3 font-label-md text-label-md text-primary">#{order.orderNumber}</td>
                           <td className="px-4 py-3 text-sm text-on-surface-variant max-w-xs truncate">{order.items.map((i) => i.title).join(", ")}</td>
-                          <td className="px-4 py-3 font-medium">₦{order.total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className="px-4 py-3 font-medium">{formatPrice(toCurrencyPrice(order.total, 0, currency, usdRate), currency)}</td>
                           <td className="px-4 py-3">
                             <span className={`px-2 py-0.5 rounded text-xs font-bold ${
                               order.status === "DELIVERED" ? "bg-green-100 text-green-700" :

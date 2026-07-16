@@ -3,6 +3,8 @@
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
+import { useCurrency } from "@/lib/useCurrency";
+import { useCartCount } from "@/lib/useCartCount";
 
 const navLinks = [
   { label: "Home", href: "/", icon: "home" },
@@ -17,15 +19,8 @@ export default function Header() {
   const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
-
-  useEffect(() => {
-    if (!session) { setCartCount(0); return; }
-    fetch("/api/cart")
-      .then((r) => r.json())
-      .then((data) => setCartCount(data?.items?.length || 0))
-      .catch(() => {});
-  }, [session]);
+  const { currency, setCurrency } = useCurrency();
+  const { cartCount } = useCartCount();
 
   useEffect(() => {
     if (mobileOpen) document.body.style.overflow = "hidden";
@@ -62,30 +57,36 @@ export default function Header() {
             );
           })}
         </div>
-        <div className="flex items-center gap-unit-md">
-          <a href="/cart" className="hidden md:flex p-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors relative">
+        <div className="flex items-center gap-unit-sm">
+          <div className="hidden md:flex items-center border border-outline-variant rounded-md overflow-hidden text-xs font-bold">
+            <button onClick={() => setCurrency("NGN")} className={`px-2 py-1 transition-colors ${currency === "NGN" ? "bg-primary text-white" : "text-on-surface-variant hover:bg-surface-container-high"}`}>₦ NGN</button>
+            <button onClick={() => setCurrency("USD")} className={`px-2 py-1 transition-colors ${currency === "USD" ? "bg-primary text-white" : "text-on-surface-variant hover:bg-surface-container-high"}`}>$ USD</button>
+          </div>
+          <a href="/cart" className="p-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors relative">
             <span className="material-symbols-outlined">shopping_cart</span>
             {cartCount > 0 && <span className="absolute -top-0.5 -right-0.5 bg-secondary text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{cartCount}</span>}
           </a>
-          {session ? (
-            <div className="relative hidden md:block">
-              <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors">
-                <span className="material-symbols-outlined">account_circle</span>
-              </button>
-              {menuOpen && (
-                <div className="absolute right-0 top-full mt-unit-xs bg-surface dark:bg-surface-dim border border-outline-variant rounded-modal shadow-sm p-unit-sm min-w-40 z-50">
-                  <p className="font-label-md text-label-md text-on-surface px-unit-sm pb-unit-xs border-b border-outline-variant/50 mb-unit-xs truncate">{session.user?.name || session.user?.email}</p>
-                  <a href="/account" className="block font-body-md text-body-md text-on-surface-variant hover:text-on-surface px-unit-sm py-unit-xs rounded-input hover:bg-surface-container transition-colors">My Account</a>
-                  <a href="/account/orders" className="block font-body-md text-body-md text-on-surface-variant hover:text-on-surface px-unit-sm py-unit-xs rounded-input hover:bg-surface-container transition-colors">Orders</a>
-                  <button onClick={() => signOut()} className="w-full text-left font-body-md text-body-md text-error hover:text-error px-unit-sm py-unit-xs rounded-input hover:bg-error-container/20 transition-colors">Sign Out</button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <a href="/signin" className="hidden md:flex p-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors">
-              <span className="material-symbols-outlined">person</span>
-            </a>
-          )}
+          <div className="hidden md:flex items-center gap-unit-sm">
+            {session ? (
+              <div className="relative">
+                <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors">
+                  <span className="material-symbols-outlined">account_circle</span>
+                </button>
+                {menuOpen && (
+                  <div className="absolute right-0 top-full mt-unit-xs bg-surface dark:bg-surface-dim border border-outline-variant rounded-modal shadow-sm p-unit-sm min-w-40 z-50">
+                    <p className="font-label-md text-label-md text-on-surface px-unit-sm pb-unit-xs border-b border-outline-variant/50 mb-unit-xs truncate">{session.user?.name || session.user?.email}</p>
+                    <a href="/account" className="block font-body-md text-body-md text-on-surface-variant hover:text-on-surface px-unit-sm py-unit-xs rounded-input hover:bg-surface-container transition-colors">My Account</a>
+                    <a href="/account/orders" className="block font-body-md text-body-md text-on-surface-variant hover:text-on-surface px-unit-sm py-unit-xs rounded-input hover:bg-surface-container transition-colors">Orders</a>
+                    <button onClick={() => signOut()} className="w-full text-left font-body-md text-body-md text-error hover:text-error px-unit-sm py-unit-xs rounded-input hover:bg-error-container/20 transition-colors">Sign Out</button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <a href="/signin" className="p-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors">
+                <span className="material-symbols-outlined">person</span>
+              </a>
+            )}
+          </div>
           <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors">
             <span className="material-symbols-outlined">{mobileOpen ? "close" : "menu"}</span>
           </button>
@@ -122,6 +123,11 @@ export default function Header() {
               })}
             </div>
             <div className="mt-6 pt-6 border-t border-outline-variant space-y-2">
+              <div className="flex items-center gap-1 font-label-md text-label-md py-2 px-4">
+                <span className="material-symbols-outlined text-on-surface-variant">currency_exchange</span>
+                <button onClick={() => { setCurrency("NGN"); setMobileOpen(false); }} className={`flex-1 py-2 px-3 rounded-lg text-center font-bold transition-colors ${currency === "NGN" ? "bg-primary text-white" : "text-on-surface-variant hover:bg-surface-container-high"}`}>₦ NGN</button>
+                <button onClick={() => { setCurrency("USD"); setMobileOpen(false); }} className={`flex-1 py-2 px-3 rounded-lg text-center font-bold transition-colors ${currency === "USD" ? "bg-primary text-white" : "text-on-surface-variant hover:bg-surface-container-high"}`}>$ USD</button>
+              </div>
               <a href="/cart" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 font-label-md text-label-md py-3 px-4 rounded-xl text-on-surface-variant hover:bg-surface-container transition-colors">
                 <span className="material-symbols-outlined">shopping_cart</span>
                 Cart
