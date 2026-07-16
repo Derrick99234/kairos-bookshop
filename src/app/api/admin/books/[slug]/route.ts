@@ -32,10 +32,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ slug: st
         variants: variants
           ? {
               deleteMany: {},
-              create: variants.map((v: { format: string; price: number; comparePrice?: number; stock?: number; sku?: string; downloadUrl?: string }) => ({
+              create: variants.map((v: { format: string; price: number; comparePrice?: number; priceUsd?: number; comparePriceUsd?: number; stock?: number; sku?: string; downloadUrl?: string }) => ({
                 format: v.format,
                 price: v.price,
                 comparePrice: v.comparePrice || 0,
+                priceUsd: v.priceUsd || 0,
+                comparePriceUsd: v.comparePriceUsd || 0,
                 stock: v.stock || 0,
                 sku: v.sku || "",
                 downloadUrl: v.downloadUrl || "",

@@ -23,12 +23,12 @@ export async function GET(req: NextRequest) {
   const status = searchParams.get("status") || "";
 
   const where: Record<string, unknown> = {};
-  if (search) {
-    where.OR = [
-      { title: { contains: search } },
-      { author: { contains: search } },
-    ];
-  }
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: "insensitive" } },
+        { author: { contains: search, mode: "insensitive" } },
+      ];
+    }
   if (category) where.categoryId = category;
 
   const [books, total, allBooksCount, outOfStock, lowStock, totalValue] = await Promise.all([
@@ -86,17 +86,45 @@ export async function POST(req: Request) {
       return err("At least one variant is required");
     }
 
-    const existing = await prisma.book.findUnique({ where: { slug: parsedBook.data.slug } });
-    if (existing) return err("A book with this slug already exists");
+    let slug = parsedBook.data.slug;
+    if (!slug) {
+      slug = parsedBook.data.title
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+      let counter = 0;
+      const baseSlug = slug;
+      while (await prisma.book.findUnique({ where: { slug } })) {
+        counter++;
+        slug = `${baseSlug}-${counter}`;
+      }
+    } else {
+      const existing = await prisma.book.findUnique({ where: { slug } });
+      if (existing) return err("A book with this slug already exists");
+    }
 
     const book = await prisma.book.create({
       data: {
-        ...parsedBook.data,
+        title: parsedBook.data.title,
+        author: parsedBook.data.author,
+        description: parsedBook.data.description ?? "",
+        isbn: parsedBook.data.isbn ?? "",
+        pages: parsedBook.data.pages ?? 0,
+        categoryId: parsedBook.data.categoryId,
+        imageUrl: parsedBook.data.imageUrl ?? "",
+        images: parsedBook.data.images ?? "[]",
+        featured: parsedBook.data.featured ?? false,
+        published: parsedBook.data.published ?? true,
+        slug,
         variants: {
-          create: variants.map((v: { format: string; price: number; comparePrice?: number; stock?: number; sku?: string; downloadUrl?: string }) => ({
+          create: variants.map((v: { format: string; price: number; comparePrice?: number; priceUsd?: number; comparePriceUsd?: number; stock?: number; sku?: string; downloadUrl?: string }) => ({
             format: v.format,
             price: v.price,
             comparePrice: v.comparePrice || 0,
+            priceUsd: v.priceUsd || 0,
+            comparePriceUsd: v.comparePriceUsd || 0,
             stock: v.stock || 0,
             sku: v.sku || "",
             downloadUrl: v.downloadUrl || "",

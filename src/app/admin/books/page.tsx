@@ -7,7 +7,7 @@ const FORMATS = ["HARDCOPY", "SOFTCOPY", "AUDIO_BOOK"];
 
 interface Category { id: string; name: string; slug: string; }
 interface Variant {
-  id?: string; format: string; price: number; comparePrice: number; stock: number; sku: string; downloadUrl?: string;
+  id?: string; format: string; price: number; comparePrice: number; priceUsd: number; comparePriceUsd: number; stock: number; sku: string; downloadUrl?: string;
 }
 interface Book {
   id: string; title: string; slug: string; author: string; description: string;
@@ -44,12 +44,12 @@ export default function AdminBooks() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   const [form, setForm] = useState({
-    title: "", slug: "", author: "", description: "", isbn: "", pages: 0,
+    title: "", author: "", description: "", isbn: "", pages: 0,
     categoryId: "", imageUrl: "", images: "[]", featured: false, published: true,
   });
 
   const [variants, setVariants] = useState<Variant[]>([
-    { format: "HARDCOPY", price: 0, comparePrice: 0, stock: 0, sku: "" },
+    { format: "HARDCOPY", price: 0, comparePrice: 0, priceUsd: 0, comparePriceUsd: 0, stock: 0, sku: "" },
   ]);
 
   useEffect(() => { fetch("/api/categories").then((r) => r.json()).then(setCategories).catch(() => {}); }, []);
@@ -90,20 +90,20 @@ export default function AdminBooks() {
 
   function openCreate() {
     setEditing(null);
-    setForm({ title: "", slug: "", author: "", description: "", isbn: "", pages: 0, categoryId: "", imageUrl: "", images: "[]", featured: false, published: true });
-    setVariants([{ format: "HARDCOPY", price: 0, comparePrice: 0, stock: 0, sku: "", downloadUrl: "" }]);
+    setForm({ title: "", author: "", description: "", isbn: "", pages: 0, categoryId: "", imageUrl: "", images: "[]", featured: false, published: true });
+    setVariants([{ format: "HARDCOPY", price: 0, comparePrice: 0, priceUsd: 0, comparePriceUsd: 0, stock: 0, sku: "", downloadUrl: "" }]);
     setShowForm(true);
   }
 
   function openEdit(book: Book) {
     setEditing(book);
     setForm({
-      title: book.title, slug: book.slug, author: book.author, description: book.description,
+      title: book.title, author: book.author, description: book.description,
       isbn: book.isbn || "", pages: book.pages || 0,
       categoryId: book.category?.id || "", imageUrl: book.imageUrl,
       images: book.images || "[]", featured: book.featured, published: book.published,
     });
-    setVariants(book.variants.length > 0 ? book.variants.map((v) => ({ ...v })) : [{ format: "HARDCOPY", price: 0, comparePrice: 0, stock: 0, sku: "" }]);
+    setVariants(book.variants.length > 0 ? book.variants.map((v) => ({ ...v })) : [{ format: "HARDCOPY", price: 0, comparePrice: 0, priceUsd: 0, comparePriceUsd: 0, stock: 0, sku: "" }]);
     setShowForm(true);
   }
 
@@ -111,7 +111,7 @@ export default function AdminBooks() {
     const used = new Set(variants.map((v) => v.format));
     const next = FORMATS.find((f) => !used.has(f));
     if (!next) { showToast("All formats already added", "error"); return; }
-    setVariants([...variants, { format: next, price: 0, comparePrice: 0, stock: 0, sku: "" }]);
+    setVariants([...variants, { format: next, price: 0, comparePrice: 0, priceUsd: 0, comparePriceUsd: 0, stock: 0, sku: "" }]);
   }
 
   function removeVariant(idx: number) {
@@ -308,116 +308,260 @@ export default function AdminBooks() {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-start justify-center pt-[5vh] pb-unit-md overflow-y-auto" onClick={() => setShowForm(false)}>
-          <div className="bg-surface rounded-xl max-w-2xl w-full p-unit-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
-            <h2 className="font-headline-md text-headline-md font-bold text-on-surface mb-unit-md">{editing ? "Edit Book" : "Add New Book"}</h2>
-            <form onSubmit={handleSubmit} className="space-y-unit-md">
-              <div className="grid grid-cols-2 gap-unit-md">
-                <div className="col-span-2">
-                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Title *</label>
-                  <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value, ...(editing ? {} : { slug: e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") }) })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" required />
-                </div>
-                <div className="col-span-2">
-                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Slug</label>
-                  <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm font-mono text-xs" />
-                </div>
-                <div>
-                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Author</label>
-                  <input value={form.author} onChange={(e) => setForm({ ...form, author: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" />
-                </div>
-                <div>
-                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Category</label>
-                  <select value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm">
-                    <option value="">Select</option>
-                    {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Pages</label>
-                  <input type="number" value={form.pages} onChange={(e) => setForm({ ...form, pages: parseInt(e.target.value) || 0 })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" />
-                </div>
-                <div>
-                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">ISBN</label>
-                  <input value={form.isbn} onChange={(e) => setForm({ ...form, isbn: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" placeholder="978-..." />
-                </div>
-                <div className="col-span-2">
-                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Description</label>
-                  <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full h-20 px-unit-sm py-unit-xs bg-surface-container-low border border-outline-variant rounded-lg text-sm resize-none" />
-                </div>
-                <div className="col-span-2">
-                  <ImageUpload currentUrl={form.imageUrl} onUpload={(url) => setForm({ ...form, imageUrl: url })} label="Book Cover Image" />
-                </div>
-                <div className="col-span-2">
-                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Additional Images (JSON array)</label>
-                  <input value={form.images} onChange={(e) => setForm({ ...form, images: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" placeholder='["url1.jpg","url2.jpg"]' />
-                </div>
-                <div className="flex items-center gap-6">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} className="w-4 h-4 accent-primary" />
-                    <span className="text-sm text-on-surface-variant">Featured</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={form.published} onChange={(e) => setForm({ ...form, published: e.target.checked })} className="w-4 h-4 accent-primary" />
-                    <span className="text-sm text-on-surface-variant">Published</span>
-                  </label>
-                </div>
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-start justify-center pt-[3vh] pb-unit-md overflow-y-auto" onClick={() => setShowForm(false)}>
+          <div className="bg-surface rounded-xl max-w-6xl w-full mx-4 shadow-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-unit-lg pt-unit-lg pb-unit-md border-b border-outline-variant">
+              <div>
+                <h2 className="font-headline-lg text-headline-lg font-bold text-on-surface">{editing ? "Edit Book" : "Add New Book"}</h2>
+                <p className="text-sm text-on-surface-variant">Fill in the details and upload media for your book listing.</p>
               </div>
-
-              <div className="border-t border-outline-variant pt-unit-md">
-                <div className="flex items-center justify-between mb-unit-sm">
-                  <h3 className="font-headline-md text-headline-md text-on-surface">Variants</h3>
-                  <button type="button" onClick={addVariant} className="text-primary text-sm flex items-center gap-1 hover:underline">
-                    <span className="material-symbols-outlined text-sm">add</span> Add Format
-                  </button>
-                </div>
-                <div className="space-y-unit-sm">
-                  {variants.map((v, idx) => (
-                    <div key={idx} className="bg-surface-container-low p-unit-sm rounded-lg border border-outline-variant">
-                      <div className="flex items-center justify-between mb-unit-xs">
-                        <select value={v.format} onChange={(e) => updateVariant(idx, "format", e.target.value)} className="h-8 px-2 bg-surface border border-outline-variant rounded text-sm font-medium" disabled={editing ? true : false}>
-                          {FORMATS.map((f) => (
-                            <option key={f} value={f} disabled={!editing && variants.some((x, i) => i !== idx && x.format === f)}>{FORMAT_LABELS[f]}</option>
-                          ))}
-                        </select>
-                        <button type="button" onClick={() => removeVariant(idx)} className="text-secondary text-sm flex items-center gap-1 hover:underline">
-                          <span className="material-symbols-outlined text-sm">remove</span>
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-4 gap-unit-sm">
-                        <div>
-                          <label className="text-[10px] text-on-surface-variant block">Price (₦)</label>
-                          <input type="number" step="0.01" value={v.price} onChange={(e) => updateVariant(idx, "price", parseFloat(e.target.value) || 0)} className="w-full h-8 px-2 bg-surface border border-outline-variant rounded text-sm" />
-                        </div>
-                        <div>
-                          <label className="text-[10px] text-on-surface-variant block">Compare</label>
-                          <input type="number" step="0.01" value={v.comparePrice} onChange={(e) => updateVariant(idx, "comparePrice", parseFloat(e.target.value) || 0)} className="w-full h-8 px-2 bg-surface border border-outline-variant rounded text-sm" />
-                        </div>
-                        <div>
-                          <label className="text-[10px] text-on-surface-variant block">Stock</label>
-                          <input type="number" value={v.stock} onChange={(e) => updateVariant(idx, "stock", parseInt(e.target.value) || 0)} className="w-full h-8 px-2 bg-surface border border-outline-variant rounded text-sm" />
-                        </div>
-                        <div>
-                          <label className="text-[10px] text-on-surface-variant block">SKU</label>
-                          <input value={v.sku} onChange={(e) => updateVariant(idx, "sku", e.target.value)} className="w-full h-8 px-2 bg-surface border border-outline-variant rounded text-sm" />
-                        </div>
-                      </div>
-                      {v.format === "SOFTCOPY" && (
-                        <div className="mt-2">
-                          <ImageUpload
-                            currentUrl={v.downloadUrl}
-                            onUpload={(url) => updateVariant(idx, "downloadUrl", url)}
-                            accept=".pdf,application/pdf"
-                            label="PDF File"
-                          />
-                        </div>
-                      )}
+              <button type="button" onClick={() => setShowForm(false)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors">
+                <span className="material-symbols-outlined text-lg">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleSubmit}>
+              <div className="grid grid-cols-5 gap-0">
+                <div className="col-span-3 p-unit-lg border-r border-outline-variant space-y-unit-md max-h-[75vh] overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-unit-md">
+                    <div className="col-span-2">
+                      <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Title *</label>
+                      <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" required />
                     </div>
-                  ))}
+                    <div>
+                      <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Author</label>
+                      <input value={form.author} onChange={(e) => setForm({ ...form, author: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" />
+                    </div>
+                    <div>
+                      <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Category</label>
+                      <select value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm">
+                        <option value="">Select</option>
+                        {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Pages</label>
+                      <input type="number" value={form.pages} onChange={(e) => setForm({ ...form, pages: parseInt(e.target.value) || 0 })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" />
+                    </div>
+                    <div>
+                      <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">ISBN</label>
+                      <input value={form.isbn} onChange={(e) => setForm({ ...form, isbn: e.target.value })} className="w-full h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" placeholder="978-..." />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Description</label>
+                      <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full h-28 px-unit-sm py-unit-xs bg-surface-container-low border border-outline-variant rounded-lg text-sm resize-none" />
+                    </div>
+                    <div className="col-span-2 flex items-center gap-6">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} className="w-4 h-4 accent-primary" />
+                        <span className="text-sm text-on-surface-variant">Featured</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" checked={form.published} onChange={(e) => setForm({ ...form, published: e.target.checked })} className="w-4 h-4 accent-primary" />
+                        <span className="text-sm text-on-surface-variant">Published</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-outline-variant pt-unit-md">
+                    <div className="flex items-center justify-between mb-unit-sm">
+                      <h3 className="font-headline-md text-headline-md text-on-surface">Variants</h3>
+                      <button type="button" onClick={addVariant} className="text-primary text-sm flex items-center gap-1 hover:underline">
+                        <span className="material-symbols-outlined text-sm">add</span> Add Format
+                      </button>
+                    </div>
+                    <div className="space-y-unit-sm">
+                      {variants.map((v, idx) => (
+                        <div key={idx} className="bg-surface-container-low p-unit-sm rounded-lg border border-outline-variant">
+                          <div className="flex items-center justify-between mb-unit-xs">
+                            <select value={v.format} onChange={(e) => updateVariant(idx, "format", e.target.value)} className="h-8 px-2 bg-surface border border-outline-variant rounded text-sm font-medium" disabled={editing ? true : false}>
+                              {FORMATS.map((f) => (
+                                <option key={f} value={f} disabled={!editing && variants.some((x, i) => i !== idx && x.format === f)}>{FORMAT_LABELS[f]}</option>
+                              ))}
+                            </select>
+                            <button type="button" onClick={() => removeVariant(idx)} className="text-secondary text-sm flex items-center gap-1 hover:underline">
+                              <span className="material-symbols-outlined text-sm">remove</span>
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-6 gap-unit-sm">
+                            <div>
+                              <label className="text-[10px] text-on-surface-variant block">Price (₦)</label>
+                              <input type="number" step="0.01" value={v.price} onChange={(e) => updateVariant(idx, "price", parseFloat(e.target.value) || 0)} className="w-full h-8 px-2 bg-surface border border-outline-variant rounded text-sm" />
+                            </div>
+                            <div>
+                              <label className="text-[10px] text-on-surface-variant block">Price ($)</label>
+                              <input type="number" step="0.01" value={v.priceUsd} onChange={(e) => updateVariant(idx, "priceUsd", parseFloat(e.target.value) || 0)} className="w-full h-8 px-2 bg-surface border border-outline-variant rounded text-sm" placeholder="Auto" />
+                            </div>
+                            <div>
+                              <label className="text-[10px] text-on-surface-variant block">Compare (₦)</label>
+                              <input type="number" step="0.01" value={v.comparePrice} onChange={(e) => updateVariant(idx, "comparePrice", parseFloat(e.target.value) || 0)} className="w-full h-8 px-2 bg-surface border border-outline-variant rounded text-sm" />
+                            </div>
+                            <div>
+                              <label className="text-[10px] text-on-surface-variant block">Compare ($)</label>
+                              <input type="number" step="0.01" value={v.comparePriceUsd} onChange={(e) => updateVariant(idx, "comparePriceUsd", parseFloat(e.target.value) || 0)} className="w-full h-8 px-2 bg-surface border border-outline-variant rounded text-sm" placeholder="Auto" />
+                            </div>
+                            <div>
+                              <label className="text-[10px] text-on-surface-variant block">Stock</label>
+                              <input type="number" value={v.stock} onChange={(e) => updateVariant(idx, "stock", parseInt(e.target.value) || 0)} className="w-full h-8 px-2 bg-surface border border-outline-variant rounded text-sm" />
+                            </div>
+                            <div>
+                              <label className="text-[10px] text-on-surface-variant block">SKU</label>
+                              <input value={v.sku} onChange={(e) => updateVariant(idx, "sku", e.target.value)} className="w-full h-8 px-2 bg-surface border border-outline-variant rounded text-sm" />
+                            </div>
+                          </div>
+                          {v.format === "SOFTCOPY" && (
+                            <div className="mt-2">
+                              <ImageUpload
+                                currentUrl={v.downloadUrl}
+                                onUpload={(url) => updateVariant(idx, "downloadUrl", url)}
+                                accept=".pdf,application/pdf"
+                                label="PDF File"
+                              />
+                            </div>
+                          )}
+                          {v.format === "AUDIO_BOOK" && (
+                            <div className="mt-2">
+                              <ImageUpload
+                                currentUrl={v.downloadUrl}
+                                onUpload={(url) => updateVariant(idx, "downloadUrl", url)}
+                                accept=".mp3,.zip,audio/mpeg,application/zip"
+                                label="Audio File"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-span-2 p-unit-lg space-y-unit-md max-h-[75vh] overflow-y-auto bg-surface-container-lowest/50">
+                  <div>
+                    <h3 className="font-headline-md text-headline-md text-on-surface mb-unit-sm">Media</h3>
+                    <p className="text-sm text-on-surface-variant mb-unit-md">Upload cover image, book files, and audio for your listing.</p>
+                  </div>
+
+                  <div className="bg-surface-container-low rounded-xl border border-outline-variant p-unit-md space-y-unit-md">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-primary text-sm">photo_library</span>
+                      <h4 className="font-label-lg text-label-lg text-on-surface">Cover Images</h4>
+                    </div>
+                    <ImageUpload currentUrl={form.imageUrl} onUpload={(url) => setForm({ ...form, imageUrl: url })} label="Book Cover Image" size="lg" />
+                    <div>
+                      <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">Additional Images</label>
+                      <div className="bg-surface-container-lowest border border-outline-variant border-dashed rounded-xl p-unit-sm">
+                        <div className="grid grid-cols-3 gap-2 mb-2">
+                          {(() => {
+                            const images = (() => { try { return JSON.parse(form.images); } catch { return []; } })();
+                            return images.length > 0 ? images.map((url: string, i: number) => (
+                              <div key={i} className="relative aspect-[3/4] rounded-lg overflow-hidden bg-surface-container-high border border-outline-variant group">
+                                <img src={url} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const arr = [...images];
+                                    arr.splice(i, 1);
+                                    setForm({ ...form, images: JSON.stringify(arr) });
+                                  }}
+                                  className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <span className="material-symbols-outlined text-xs">close</span>
+                                </button>
+                              </div>
+                            )) : null;
+                          })()}
+                          <button
+                            type="button"
+                            onClick={() => document.getElementById("additional-images-input")?.click()}
+                            className="aspect-[3/4] rounded-lg border-2 border-dashed border-outline-variant flex flex-col items-center justify-center gap-1 text-outline hover:border-primary hover:text-primary transition-colors bg-surface-container-low"
+                          >
+                            <span className="material-symbols-outlined text-xl">add</span>
+                            <span className="text-[10px]">Add Image</span>
+                          </button>
+                        </div>
+                        <input
+                          id="additional-images-input"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const fd = new FormData();
+                            fd.append("file", file);
+                            try {
+                              const res = await fetch("/api/upload", { method: "POST", body: fd });
+                              const data = await res.json();
+                              if (res.ok) {
+                                const arr = (() => { try { return JSON.parse(form.images); } catch { return []; } })();
+                                arr.push(data.url);
+                                setForm({ ...form, images: JSON.stringify(arr) });
+                              }
+                            } catch {}
+                            e.target.value = "";
+                          }}
+                        />
+                        {form.images !== "[]" && form.images !== "[]" && (
+                          <input value={form.images} onChange={(e) => setForm({ ...form, images: e.target.value })} className="w-full h-8 px-unit-sm bg-surface border border-outline-variant rounded text-xs font-mono mt-1" placeholder='["url1.jpg","url2.jpg"]' />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-surface-container-low rounded-xl border border-outline-variant p-unit-md">
+                    <div className="flex items-center gap-2 mb-unit-md">
+                      <span className="material-symbols-outlined text-primary text-sm">description</span>
+                      <h4 className="font-label-lg text-label-lg text-on-surface">Book Files</h4>
+                    </div>
+                    {variants.find((v) => v.format === "SOFTCOPY") ? (
+                      <ImageUpload
+                        currentUrl={variants.find((v) => v.format === "SOFTCOPY")!.downloadUrl}
+                        onUpload={(url) => {
+                          const idx = variants.findIndex((v) => v.format === "SOFTCOPY");
+                          if (idx !== -1) updateVariant(idx, "downloadUrl", url);
+                        }}
+                        accept=".pdf,application/pdf"
+                        label="Book File (PDF)"
+                        size="lg"
+                      />
+                    ) : (
+                      <div className="bg-surface-container-lowest border border-outline-variant border-dashed rounded-xl p-unit-md text-center">
+                        <span className="material-symbols-outlined text-2xl text-outline block mb-1">picture_as_pdf</span>
+                        <p className="text-sm text-on-surface-variant">Add a <strong>Softcopy</strong> variant to upload your book PDF.</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="bg-surface-container-low rounded-xl border border-outline-variant p-unit-md">
+                    <div className="flex items-center gap-2 mb-unit-md">
+                      <span className="material-symbols-outlined text-primary text-sm">audiotrack</span>
+                      <h4 className="font-label-lg text-label-lg text-on-surface">Audio Files</h4>
+                    </div>
+                    {variants.find((v) => v.format === "AUDIO_BOOK") ? (
+                      <ImageUpload
+                        currentUrl={variants.find((v) => v.format === "AUDIO_BOOK")!.downloadUrl}
+                        onUpload={(url) => {
+                          const idx = variants.findIndex((v) => v.format === "AUDIO_BOOK");
+                          if (idx !== -1) updateVariant(idx, "downloadUrl", url);
+                        }}
+                        accept=".mp3,.zip,audio/mpeg,application/zip"
+                        label="Audio File (MP3 or ZIP)"
+                        size="lg"
+                      />
+                    ) : (
+                      <div className="bg-surface-container-lowest border border-outline-variant border-dashed rounded-xl p-unit-md text-center">
+                        <span className="material-symbols-outlined text-2xl text-outline block mb-1">music_note</span>
+                        <p className="text-sm text-on-surface-variant">Add an <strong>Audio Book</strong> variant to upload your audio file.</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-unit-md pt-unit-sm border-t border-outline-variant">
-                <button type="submit" className="bg-primary text-white px-unit-md py-unit-sm rounded-lg font-label-md text-label-md hover:bg-primary-fixed-dim transition-all">{editing ? "Update" : "Create"}</button>
+              <div className="flex items-center justify-between px-unit-lg py-unit-md border-t border-outline-variant bg-surface-container-lowest rounded-b-xl">
+                <button type="submit" className="bg-[#E03636] hover:bg-[#c02e2e] text-white px-unit-lg py-unit-sm rounded-lg font-label-md text-label-md flex items-center gap-2 transition-all active:scale-95 shadow-lg">
+                  <span className="material-symbols-outlined text-sm">{editing ? "save" : "add_circle"}</span>
+                  {editing ? "Update Book" : "Publish Book"}
+                </button>
                 <button type="button" onClick={() => setShowForm(false)} className="px-unit-md py-unit-sm border border-outline-variant rounded-lg text-sm text-on-surface hover:bg-surface-container transition-colors">Cancel</button>
               </div>
             </form>

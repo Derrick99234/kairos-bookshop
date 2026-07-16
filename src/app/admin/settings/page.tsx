@@ -13,6 +13,7 @@ export default function AdminSettings() {
     paystackPublicKey: "", paystackSecretKey: "", smtpHost: "",
     smtpPort: "", smtpUser: "", smtpPass: "", smtpFrom: "", gaTrackingId: "", fbPixelId: "",
   });
+  const [pricing, setPricing] = useState({ usdRate: "1500" });
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -29,6 +30,7 @@ export default function AdminSettings() {
       .then((d) => {
         if (d.profile) setProfile(d.profile);
         if (d.integrations) setIntegrations(d.integrations);
+        if (d.pricing) setPricing(d.pricing);
       })
       .catch(() => showToast("Failed to load settings", "error"))
       .finally(() => setLoading(false));
@@ -40,6 +42,7 @@ export default function AdminSettings() {
       const body: Record<string, unknown> = {};
       if (activeTab === "Profile") body.profile = profile;
       if (activeTab === "Integrations") body.integrations = integrations;
+      if (activeTab === "Pricing") body.pricing = pricing;
 
       const res = await fetch("/api/admin/settings", {
         method: "PATCH",
@@ -80,7 +83,7 @@ export default function AdminSettings() {
     return <div className="flex items-center justify-center py-unit-xl text-on-surface-variant">Loading...</div>;
   }
 
-  const tabs = ["Profile", "Security", "Integrations"];
+  const tabs = ["Profile", "Security", "Pricing", "Integrations"];
 
   return (
     <div>
@@ -164,6 +167,29 @@ export default function AdminSettings() {
             </div>
 
 
+          </div>
+        )}
+
+        {activeTab === "Pricing" && (
+          <div className="space-y-unit-md">
+            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg">
+              <h3 className="font-headline-md text-headline-md text-on-surface mb-unit-md">Currency &amp; Pricing</h3>
+              <p className="text-sm text-on-surface-variant mb-unit-lg">Set the exchange rate used to auto-calculate USD prices when a book variant does not have a manual USD price set.</p>
+
+              <div className="space-y-unit-md max-w-lg">
+                <div>
+                  <label className="font-label-md text-label-md text-on-surface-variant block mb-unit-xs">NGN → USD Exchange Rate</label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-on-surface-variant font-medium">₦1</span>
+                    <span className="text-outline">=</span>
+                    <span className="text-sm text-on-surface-variant font-medium">$1 ÷</span>
+                    <input type="number" min="1" step="1" value={pricing.usdRate} onChange={(e) => setPricing({ usdRate: e.target.value })} className="w-32 h-10 px-unit-sm bg-surface-container-low border border-outline-variant rounded-lg text-sm" />
+                    <span className="text-sm text-on-surface-variant">(e.g. 1500 means ₦15,000 = $10)</span>
+                  </div>
+                  <p className="text-xs text-outline mt-1">This rate is only used when a book variant has no manual USD price. Variants with a manual USD price are not affected.</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

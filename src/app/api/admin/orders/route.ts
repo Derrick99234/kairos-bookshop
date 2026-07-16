@@ -46,8 +46,8 @@ export async function GET(req: NextRequest) {
 
   if (q) {
     where.OR = [
-      { orderNumber: { contains: q } },
-      { email: { contains: q } },
+      { orderNumber: { contains: q, mode: "insensitive" } },
+      { email: { contains: q, mode: "insensitive" } },
     ];
   }
 

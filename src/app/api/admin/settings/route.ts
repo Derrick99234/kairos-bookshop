@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { ok, err } from "@/lib/utils";
 
-const SETTING_KEYS = ["paystackPublicKey", "paystackSecretKey", "smtpHost", "smtpPort", "smtpUser", "smtpPass", "smtpFrom", "gaTrackingId", "fbPixelId"];
+const SETTING_KEYS = ["paystackPublicKey", "paystackSecretKey", "smtpHost", "smtpPort", "smtpUser", "smtpPass", "smtpFrom", "gaTrackingId", "fbPixelId", "usdRate"];
 
 export async function GET() {
   const session = await auth();
@@ -32,6 +32,9 @@ export async function GET() {
       gaTrackingId: settingsMap.gaTrackingId || "",
       fbPixelId: settingsMap.fbPixelId || "",
     },
+    pricing: {
+      usdRate: settingsMap.usdRate || "1500",
+    },
   });
 }
 
@@ -56,6 +59,17 @@ export async function PATCH(req: Request) {
 
     if (body.integrations) {
       const upserts = Object.entries(body.integrations).map(([key, value]) =>
+        prisma.storeSetting.upsert({
+          where: { key },
+          update: { value: String(value) },
+          create: { key, value: String(value) },
+        })
+      );
+      await Promise.all(upserts);
+    }
+
+    if (body.pricing) {
+      const upserts = Object.entries(body.pricing).map(([key, value]) =>
         prisma.storeSetting.upsert({
           where: { key },
           update: { value: String(value) },
