@@ -109,14 +109,16 @@ model Book {
 }
 
 model BookVariant {
-  id           String   @id @default(cuid())
-  bookId       String
-  format       String   @default("HARDCOPY")
-  price        Float
-  comparePrice Float    @default(0)
-  stock        Int      @default(0)
-  sku          String   @default("")
-  downloadUrl  String   @default("")
+  id              String   @id @default(cuid())
+  bookId          String
+  format          String   @default("HARDCOPY")
+  price           Float
+  comparePrice    Float    @default(0)
+  priceUsd        Float    @default(0)
+  comparePriceUsd Float    @default(0)
+  stock           Int      @default(0)
+  sku             String   @default("")
+  downloadUrl     String   @default("")
 
   book       Book       @relation(fields: [bookId], references: [id], onDelete: Cascade)
   cartItems  CartItem[]

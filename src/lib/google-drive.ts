@@ -1,55 +1,27 @@
-import crypto from "crypto";
-
-const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const DRIVE_API = "https://www.googleapis.com/drive/v3";
 
-function getServiceAccount(): Record<string, string> {
-  const raw = process.env.GOOGLE_DRIVE_SERVICE_ACCOUNT;
-  if (!raw) throw new Error("GOOGLE_DRIVE_SERVICE_ACCOUNT not set");
-  return JSON.parse(raw);
-}
-
-function base64Url(input: Buffer): string {
-  return input
-    .toString("base64")
-    .replace(/=/g, "")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
-}
-
 async function getAccessToken(): Promise<string> {
-  const sa = getServiceAccount();
-  const now = Math.floor(Date.now() / 1000);
-  const header = { alg: "RS256", typ: "JWT" };
-  const payload = {
-    iss: sa.client_email,
-    scope: SCOPES.join(" "),
-    aud: TOKEN_URL,
-    exp: now + 3600,
-    iat: now,
-  };
-
-  const encodedHeader = base64Url(Buffer.from(JSON.stringify(header)));
-  const encodedPayload = base64Url(Buffer.from(JSON.stringify(payload)));
-  const signatureInput = `${encodedHeader}.${encodedPayload}`;
-
-  const signer = crypto.createSign("RSA-SHA256");
-  signer.update(signatureInput);
-  const signature = base64Url(signer.sign(sa.private_key));
-
-  const jwt = `${signatureInput}.${signature}`;
+  const clientId = process.env.GOOGLE_DRIVE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_DRIVE_CLIENT_SECRET;
+  const refreshToken = process.env.GOOGLE_DRIVE_REFRESH_TOKEN;
+  if (!clientId || !clientSecret || !refreshToken) {
+    throw new Error("GOOGLE_DRIVE_CLIENT_ID, GOOGLE_DRIVE_CLIENT_SECRET, and GOOGLE_DRIVE_REFRESH_TOKEN must be set");
+  }
 
   const res = await fetch(TOKEN_URL, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
-      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion: jwt,
+      client_id: clientId,
+      client_secret: clientSecret,
+      refresh_token: refreshToken,
+      grant_type: "refresh_token",
     }),
   });
 
   const data = await res.json();
+  if (!data.access_token) throw new Error(data.error_description || data.error || "Failed to get access token");
   return data.access_token;
 }
 
@@ -77,7 +49,7 @@ export async function uploadToDrive(
   );
 
   const res = await fetch(
-    `${DRIVE_API}/files?uploadType=multipart&fields=id`,
+    `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id`,
     {
       method: "POST",
       headers: {
