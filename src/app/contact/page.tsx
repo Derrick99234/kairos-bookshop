@@ -73,7 +73,7 @@ export default function ContactPage() {
               <div className="space-y-unit-md">
                 <div className="flex items-start gap-3">
                   <span className="material-symbols-outlined text-primary">location_on</span>
-                  <div><p className="font-label-md">Address</p><p className="text-sm text-on-surface-variant">11 Kudirat Abiola Way, Ikeja, Lagos, Nigeria</p></div>
+                  <div><p className="font-label-md">Address</p><p className="text-sm text-on-surface-variant">180 Freedom Way, After Renee Supermarket, Off Admiralty Way, Lekki Phase 1, Lekki</p></div>
                 </div>
                 <div className="flex items-start gap-3">
                   <span className="material-symbols-outlined text-primary">call</span>

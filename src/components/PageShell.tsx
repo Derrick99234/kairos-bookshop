@@ -40,7 +40,7 @@ export default function PageShell({ children }: { children: React.ReactNode }) {
               <div className="font-body text-body-medium text-on-primary/80 space-y-2">
                 <p className="flex items-start gap-2">
                   <span className="material-symbols-outlined text-sm mt-1">location_on</span>
-                  11 Kudirat Abiola Way, Ikeja, Lagos
+                  180 Freedom Way, After Renee Supermarket, Off Admiralty Way, Lekki Phase 1, Lekki
                 </p>
                 <p className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-sm">call</span>

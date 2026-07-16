@@ -20,7 +20,7 @@
 - Phone: +234 8135672235
 - Email: TBD (site doesn't show one)
 - WhatsApp: wa.me/2348135672235
-- Address: 11 Kudirat Abiola Way, Alausa, Ikeja, Lagos, Nigeria
+- Address: 180 Freedom Way, After Renee Supermarket, Off Admiralty Way, Lekki Phase 1, Lekki
 
 **Social Links:**
 - YouTube: @ArkofLightforallNations

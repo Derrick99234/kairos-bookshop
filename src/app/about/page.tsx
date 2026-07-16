@@ -54,7 +54,7 @@ export default function About() {
           <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               <div className="text-center">
-                <div className="font-headline-lg text-headline-lg text-primary mb-1">200+</div>
+                <div className="font-headline-lg text-headline-lg text-primary mb-1">100+</div>
                 <div className="font-label-md text-label-md text-secondary uppercase tracking-wider">Books Published</div>
               </div>
               <div className="text-center">

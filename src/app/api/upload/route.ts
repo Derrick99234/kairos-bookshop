@@ -15,8 +15,9 @@ export async function POST(req: NextRequest) {
 
     if (!file) return err("No file provided");
 
+    const ext = file.name.includes(".") ? `.${file.name.split(".").pop()}` : "";
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`;
     const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
 
     const result = await uploadToDrive(buffer, fileName, file.type);
 
