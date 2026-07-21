@@ -7,7 +7,8 @@ const REDIRECT_URI = "http://localhost:3000";
 
 const code = process.argv[2];
 if (!code) {
-  const url = `https://accounts.google.com/o/oauth2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${encodeURIComponent("https://www.googleapis.com/auth/drive.file")}&access_type=offline&prompt=consent`;
+  const scope = "https://www.googleapis.com/auth/drive";
+  const url = `https://accounts.google.com/o/oauth2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent`;
   console.log("1. Visit this URL in your browser and authorize:");
   console.log(url);
   console.log("\n2. After authorizing, you'll be redirected to localhost:3000");

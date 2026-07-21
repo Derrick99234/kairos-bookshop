@@ -415,6 +415,7 @@ export default function AdminBooks() {
                                 onUpload={(url) => updateVariant(idx, "downloadUrl", url)}
                                 accept=".pdf,application/pdf"
                                 label="PDF File"
+                                uploadType="pdf"
                               />
                             </div>
                           )}
@@ -425,6 +426,7 @@ export default function AdminBooks() {
                                 onUpload={(url) => updateVariant(idx, "downloadUrl", url)}
                                 accept=".mp3,.zip,audio/mpeg,application/zip"
                                 label="Audio File"
+                                uploadType="audio"
                               />
                             </div>
                           )}
@@ -488,6 +490,7 @@ export default function AdminBooks() {
                             if (!file) return;
                             const fd = new FormData();
                             fd.append("file", file);
+                            fd.append("type", "cover");
                             try {
                               const res = await fetch("/api/upload", { method: "POST", body: fd });
                               const data = await res.json();
@@ -522,6 +525,7 @@ export default function AdminBooks() {
                         accept=".pdf,application/pdf"
                         label="Book File (PDF)"
                         size="lg"
+                        uploadType="pdf"
                       />
                     ) : (
                       <div className="bg-surface-container-lowest border border-outline-variant border-dashed rounded-xl p-unit-md text-center">
@@ -546,6 +550,7 @@ export default function AdminBooks() {
                         accept=".mp3,.zip,audio/mpeg,application/zip"
                         label="Audio File (MP3 or ZIP)"
                         size="lg"
+                        uploadType="audio"
                       />
                     ) : (
                       <div className="bg-surface-container-lowest border border-outline-variant border-dashed rounded-xl p-unit-md text-center">

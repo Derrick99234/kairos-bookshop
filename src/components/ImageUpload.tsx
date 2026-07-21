@@ -8,9 +8,10 @@ interface ImageUploadProps {
   accept?: string;
   label?: string;
   size?: "sm" | "lg";
+  uploadType?: "cover" | "pdf" | "audio";
 }
 
-export default function ImageUpload({ currentUrl, onUpload, accept = "image/*", label = "Image", size = "sm" }: ImageUploadProps) {
+export default function ImageUpload({ currentUrl, onUpload, accept = "image/*", label = "Image", size = "sm", uploadType = "cover" }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(currentUrl || "");
   const [error, setError] = useState("");
@@ -23,6 +24,7 @@ export default function ImageUpload({ currentUrl, onUpload, accept = "image/*", 
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("type", uploadType);
 
     try {
       const res = await fetch("/api/upload", { method: "POST", body: formData });
