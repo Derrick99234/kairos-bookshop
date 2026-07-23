@@ -97,6 +97,7 @@ model Book {
   imageUrl      String   @default("")
   images        String   @default("[]")
   featured      Boolean  @default(false)
+  featuredAt    DateTime?
   published     Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

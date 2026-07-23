@@ -11,6 +11,27 @@ async function checkAdmin() {
   return true;
 }
 
+const MAX_FEATURED = 4;
+
+async function enforceMaxFeatured(excludeBookId?: string) {
+  const featured = await prisma.book.findMany({
+    where: {
+      featured: true,
+      ...(excludeBookId ? { id: { not: excludeBookId } } : {}),
+    },
+    orderBy: { featuredAt: "asc" },
+    select: { id: true, featuredAt: true },
+  });
+
+  if (featured.length > MAX_FEATURED) {
+    const toRemove = featured.slice(0, featured.length - MAX_FEATURED);
+    await prisma.book.updateMany({
+      where: { id: { in: toRemove.map((b) => b.id) } },
+      data: { featured: false, featuredAt: null },
+    });
+  }
+}
+
 export async function PUT(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   if (!(await checkAdmin())) return err("Forbidden", 403);
 
@@ -25,10 +46,18 @@ export async function PUT(req: Request, { params }: { params: Promise<{ slug: st
     const book = await prisma.book.findUnique({ where: { slug } });
     if (!book) return err("Book not found", 404);
 
+    const { featured, ...rest } = parsed.data;
+
+    const data: Record<string, unknown> = { ...rest };
+    if (featured !== undefined && featured !== book.featured) {
+      data.featured = featured;
+      data.featuredAt = featured ? new Date() : null;
+    }
+
     const updatedBook = await prisma.book.update({
       where: { slug },
       data: {
-        ...parsed.data,
+        ...data,
         variants: variants
           ? {
               deleteMany: {},
@@ -47,6 +76,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ slug: st
       },
       include: { variants: true },
     });
+
+    if (data.featured === true) await enforceMaxFeatured(updatedBook.id);
 
     return ok(updatedBook);
   } catch {
