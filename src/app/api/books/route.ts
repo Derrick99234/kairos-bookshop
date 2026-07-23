@@ -23,8 +23,10 @@ export async function GET(req: NextRequest) {
   if (category) where.categoryId = category;
   if (featured === "true") where.featured = true;
 
-  const orderBy: Record<string, string> =
-    sort === "oldest" ? { createdAt: "asc" } : { createdAt: "desc" };
+  const orderBy: Record<string, string> | any =
+    sort === "oldest" ? { createdAt: "asc" } :
+    sort === "featured" ? [{ featuredAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }] :
+    { createdAt: "desc" };
 
   const [books, total] = await Promise.all([
     prisma.book.findMany({

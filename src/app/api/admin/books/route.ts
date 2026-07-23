@@ -12,6 +12,27 @@ async function checkAdmin() {
   return true;
 }
 
+const MAX_FEATURED = 4;
+
+async function enforceMaxFeatured(excludeBookId?: string) {
+  const featured = await prisma.book.findMany({
+    where: {
+      featured: true,
+      ...(excludeBookId ? { id: { not: excludeBookId } } : {}),
+    },
+    orderBy: { featuredAt: "asc" },
+    select: { id: true, featuredAt: true },
+  });
+
+  if (featured.length > MAX_FEATURED) {
+    const toRemove = featured.slice(0, featured.length - MAX_FEATURED);
+    await prisma.book.updateMany({
+      where: { id: { in: toRemove.map((b) => b.id) } },
+      data: { featured: false, featuredAt: null },
+    });
+  }
+}
+
 export async function GET(req: NextRequest) {
   if (!(await checkAdmin())) return err("Forbidden", 403);
 
@@ -105,6 +126,7 @@ export async function POST(req: Request) {
       if (existing) return err("A book with this slug already exists");
     }
 
+    const isFeatured = parsedBook.data.featured ?? false;
     const book = await prisma.book.create({
       data: {
         title: parsedBook.data.title,
@@ -115,7 +137,8 @@ export async function POST(req: Request) {
         categoryId: parsedBook.data.categoryId,
         imageUrl: parsedBook.data.imageUrl ?? "",
         images: parsedBook.data.images ?? "[]",
-        featured: parsedBook.data.featured ?? false,
+        featured: isFeatured,
+        featuredAt: isFeatured ? new Date() : null,
         published: parsedBook.data.published ?? true,
         slug,
         variants: {
@@ -133,6 +156,8 @@ export async function POST(req: Request) {
       },
       include: { variants: true },
     });
+
+    if (isFeatured) await enforceMaxFeatured();
 
     return ok(book, 201);
   } catch (e) {

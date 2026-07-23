@@ -69,7 +69,7 @@ export default function Home() {
   }
 
   useEffect(() => {
-    fetch("/api/books?limit=4")
+    fetch("/api/books?featured=true&sort=featured&limit=4")
       .then((r) => r.json()).then((d) => setFeatured(d.books || [])).catch(() => {});
     fetch("/api/categories")
       .then((r) => r.json())
