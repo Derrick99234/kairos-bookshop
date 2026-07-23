@@ -25,6 +25,7 @@ interface PaystackVerifyResponse {
     reference: string;
     amount: number;
     paid_at: string;
+    metadata?: Record<string, unknown>;
   };
 }
 

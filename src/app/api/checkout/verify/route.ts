@@ -12,9 +12,12 @@ export async function POST(req: Request) {
     const payment = await verifyPayment(reference);
 
     if (payment.data.status === "success") {
-      const order = await prisma.order.findFirst({
-        where: { orderNumber: { contains: reference.split("-")[1] } },
-      });
+      const orderId = payment.data.metadata?.orderId as string | undefined;
+      const order = orderId
+        ? await prisma.order.findUnique({ where: { id: orderId } })
+        : await prisma.order.findFirst({
+            where: { orderNumber: { contains: reference.split("-")[1] } },
+          });
 
       if (order) {
         await prisma.order.update({
