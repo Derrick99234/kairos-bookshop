@@ -4,6 +4,16 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
+function sanitizeHtml(html: string): string {
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "")
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, "")
+    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, "")
+    .replace(/\son\w+="[^"]*"/gi, "")
+    .replace(/\son\w+='[^']*'/gi, "");
+}
+
 interface BlogPost {
   id: string; title: string; slug: string; excerpt: string;
   content: string; author: string; category: string; imageUrl: string;
@@ -65,21 +75,7 @@ export default function BlogPostPage() {
           {post.imageUrl ? <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-outline opacity-30 text-8xl">article</span></div>}
         </div>
 
-        <div className="prose prose-lg max-w-none">
-          {post.content.split("\n").map((line, i) => {
-            if (line.startsWith("**") && line.endsWith("**")) {
-              return <h3 key={i} className="font-headline-md text-headline-md text-on-surface mt-6 mb-3">{line.replace(/\*\*/g, "")}</h3>;
-            }
-            if (line.match(/^\d+\./)) {
-              return <li key={i} className="text-body-md text-on-surface-variant ml-4">{line}</li>;
-            }
-            if (line.startsWith("- ")) {
-              return <li key={i} className="text-body-md text-on-surface-variant ml-4">{line.slice(2)}</li>;
-            }
-            if (line.trim() === "") return <br key={i} />;
-            return <p key={i} className="text-body-md text-on-surface-variant leading-relaxed mb-4">{line}</p>;
-          })}
-        </div>
+        <div className="blog-content text-body-md text-on-surface-variant leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }} />
 
         <div className="mt-unit-xl pt-unit-lg border-t border-outline-variant flex justify-between">
           <Link href="/blog" className="text-primary font-label-md flex items-center gap-2 hover:gap-3 transition-all">

@@ -116,7 +116,7 @@ export default function OrderDetailPage() {
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{formatPrice(toCurrencyPrice(item.price * item.quantity, 0, currency, usdRate), currency)}</span>
                     {item.fulfillmentStatus === "DOWNLOADABLE" && (
-                      <Link href={`/books/${item.book.slug}`} className="bg-primary text-white text-xs px-3 py-1.5 rounded-lg hover:bg-primary-fixed-dim transition-colors">View Book</Link>
+                      <a href={`/api/download/${item.id}`} className="bg-primary text-white text-xs px-3 py-1.5 rounded-lg hover:bg-primary-fixed-dim transition-colors">Download</a>
                     )}
                   </div>
                 </div>

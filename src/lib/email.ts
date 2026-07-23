@@ -79,14 +79,14 @@ export async function sendOrderConfirmation(to: string, orderNumber: string) {
         <td style="padding: 0 0 20px 0;">
           <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #1e293b;">📥 Your Digital Books Are Ready</h3>
           <table style="width: 100%; border-collapse: collapse;">
-            ${softcopyItems.map((item) => `
+              ${softcopyItems.map((item) => `
               <tr>
                 <td style="padding: 10px 14px; background: #f8fafc; border-radius: 8px; margin-bottom: 8px; display: block;">
                   <table style="width: 100%;">
                     <tr>
                       <td style="font-size: 14px; color: #1e293b; font-weight: 600;">${item.title}</td>
                       <td style="text-align: right; width: 120px;">
-                        <a href="${appUrl}/books/${bookMap.get(item.bookId) || item.id}" style="display: inline-block; background: #E03636; color: #ffffff; padding: 8px 20px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600;">View Book</a>
+                        <a href="${appUrl}/api/download/${item.id}" style="display: inline-block; background: #E03636; color: #ffffff; padding: 8px 20px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600;">Download</a>
                       </td>
                     </tr>
                   </table>

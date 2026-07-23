@@ -12,9 +12,13 @@ export async function uploadToDrive(
   fileBuffer: Buffer,
   fileName: string,
   mimeType: string,
+  folderId?: string,
 ): Promise<{ id: string; url: string; thumbnailUrl: string }> {
   const res = await drive.files.create({
-    requestBody: { name: fileName },
+    requestBody: {
+      name: fileName,
+      ...(folderId ? { parents: [folderId] } : {}),
+    },
     media: { mimeType, body: Readable.from(fileBuffer) },
     fields: "id",
   });
